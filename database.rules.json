@@ -21,6 +21,9 @@
         "mostrarQR": {
           ".validate": "newData.isBoolean()"
         },
+        "rolagem": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 100"
+        },
         "$outro": {
           ".validate": false
         }

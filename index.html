@@ -216,6 +216,7 @@ body.r-telao{overflow:hidden}
 .tel-lei .lei-tit{font-size:clamp(22px,2.6vw,56px)}
 .tel-lei .lei-papel{flex:1;min-height:0;overflow:hidden;padding:2.5vw 4vw}
 .tel-lei .lei-papel .rot{max-width:70ch;margin:0 auto}
+.tel-lei .dica-teclas #continua{color:var(--gold);font-weight:700;margin-right:1em}
 .tel-lei .dica-teclas{color:#7d7262;font-size:clamp(12px,.9vw,18px);text-align:right}
 @media (max-width:900px){
   body.r-telao{overflow:auto}
@@ -379,7 +380,7 @@ const CHECKS = [
   'Tem um gesto que mostra o sentimento',
   'Pelo menos 4 ações e 4 falas',
 ];
-const RUBRICAS = ['FIRME','BAIXINHO','RINDO'];
+const RUBRICAS = ['FORA DE QUADRO'];
 const STATUS_TXT = { escolhendo:'escolhendo o momento', respondendo:'respondendo as perguntas', escrevendo:'escrevendo', enviado:'cena enviada' };
 const STATUS_LBL = { escolhendo:'Escolhendo', respondendo:'Respondendo', escrevendo:'Escrevendo', enviado:'Enviado' };
 
@@ -496,7 +497,7 @@ function leituraAtual(){
 function roteiroHTML(momento, cena){
   const blocos = blocosDe(cena);
   let h = `<div class="rot"><div class="rot-cab">${momento ? momento + '. ' : ''}${esc(cabTxt(cena && cena.cabecalho))}</div>`;
-  let algum = false;
+  let algum = false, ultimoPers = '';
   for (const b of blocos){
     if (b.tipo === 'acao'){
       if (!String(b.texto||'').trim()) continue;
@@ -506,7 +507,11 @@ function roteiroHTML(momento, cena){
       if (!String(b.personagem||'').trim() && !String(b.texto||'').trim()) continue;
       algum = true;
       const rub = rubLimpa(b.rubrica);
-      h += `<div class="rot-dlg"><div class="rot-pers">${esc(String(b.personagem||'').trim().toUpperCase() || 'PERSONAGEM')}</div>${rub ? `<div class="rot-rub">(${esc(rub)})</div>` : ''}<div class="rot-fala">${esc(String(b.texto||'').trim())}</div></div>`;
+      const pers = String(b.personagem||'').trim().toUpperCase() || 'PERSONAGEM';
+      // Mesmo personagem falando de novo (seguido ou depois de uma ação): (CONT.) automático.
+      const cont = pers === ultimoPers ? ' (CONT.)' : '';
+      ultimoPers = pers;
+      h += `<div class="rot-dlg"><div class="rot-pers">${esc(pers + cont)}</div>${rub ? `<div class="rot-rub">(${esc(rub)})</div>` : ''}<div class="rot-fala">${esc(String(b.texto||'').trim())}</div></div>`;
     }
   }
   if (!algum) h += `<p class="rot-acao rot-vazio">A cena aparece aqui enquanto vocês escrevem.</p>`;
@@ -648,7 +653,8 @@ function blocoHTML(b, i, n){
     <div class="lbl">Personagem</div>
     <div class="chips">${sug.map(p => `<button type="button" class="chip ${!outro && b.personagem===p?'on':''}" data-act="pers" data-i="${i}" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip ${outro?'on':''}" data-act="pers" data-i="${i}" data-v="">Outro</button></div>
     ${outro ? `<label class="campo"><span>Nome do personagem</span><input data-b="${i}" data-k="personagem" maxlength="30" autocomplete="off" placeholder="Ex.: JESSÉ" value="${esc(b.personagem)}"></label>` : ''}
-    <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, RINDO" value="${esc(b.rubrica||'')}"></label>
+    <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, FORA DE QUADRO" value="${esc(b.rubrica||'')}"></label>
+    <div class="chips mini">${RUBRICAS.map(r => `<button type="button" class="chip ${String(b.rubrica||'').toUpperCase()===r?'on':''}" data-act="rub" data-i="${i}" data-v="${r}">${r[0] + r.slice(1).toLowerCase()}</button>`).join('')}</div>
     <label class="campo" style="margin-bottom:0"><span>Fala</span><textarea data-b="${i}" data-k="texto" maxlength="400" rows="3" placeholder="O que o personagem diz">${esc(b.texto)}</textarea></label>
     <div class="bl-info"><span>Do jeito que o personagem fala.</span><span class="cc" data-cc="${i}">${b.texto.length}/400</span></div></div>`;
 }
@@ -831,14 +837,17 @@ function renderTelao(forca){
   const c = DB.config, gs = gruposArr().sort(porCriacao);
   const espera = c.mostrarQR === true || (gs.length === 0 && c.mostrarQR !== false);
   const sig = JSON.stringify([c.modoLeitura ? leituraAtual().g : null, !!c.modoLeitura, c.indiceLeitura, espera, c.destaque, gs.map(g => [g.id, g.nome, g.momento, g.status, g.cena]), innerWidth, innerHeight]);
-  if (!forca && sig === telaoSig) return;
+  if (!forca && sig === telaoSig){ if (c.modoLeitura) aplicaRolagem(true); return; }
   telaoSig = sig;
+  pararAutoRolagem();
   const app = $('#app');
 
   if (c.modoLeitura){
-    app.innerHTML = `<div class="tel-lei">${leituraHTML()}<div class="dica-teclas">Setas do teclado: anterior e próxima</div></div>`;
+    app.innerHTML = `<div class="tel-lei">${leituraHTML()}<div class="dica-teclas"><span id="continua" hidden>A cena continua abaixo ▼</span> Setas ← → trocam a cena. Setas ↑ ↓ rolam.</div></div>`;
     const p = $('.tel-lei .lei-papel');
-    if (p) ajustaFonte(p, p, Math.round(Math.min(innerWidth / 30, innerHeight / 17)), 14);
+    // A letra diminui só até um tamanho legível do fundo da sala; o resto o apresentador rola pelo painel.
+    if (p) ajustaFonte(p, p, Math.round(Math.min(innerWidth / 30, innerHeight / 17)), Math.max(18, Math.round(innerHeight / 30)));
+    aplicaRolagem(false);
     return;
   }
   if (espera){
@@ -870,6 +879,7 @@ function renderTelao(forca){
       <div class="chegando">${chegando.length ? 'Chegando: ' + chegando.map(g => esc(nomeGrupo(g.nome))).join(', ') + dots : ''}</div>
       <div class="tqr"><span>Entrou atrasado?<br>Use o QR code</span><div id="qrMini"></div></div></footer></div>`;
   qr($('#qrMini'));
+  iniciarAutoRolagem();
   const gd = c.destaque && DB.grupos[c.destaque] ? { id: c.destaque, ...DB.grupos[c.destaque] } : null;
   if (gd && temCena(gd)){
     const m = MOMENTOS[gd.momento - 1];
@@ -878,16 +888,48 @@ function renderTelao(forca){
     ajustaFonte(p, p, Math.round(Math.min(innerWidth / 34, innerHeight / 19)), 13);
   }
 }
+// Rolagem da cena no Modo Leitura do telão, comandada pelo painel (config.rolagem = passos de meia tela).
+function aplicaRolagem(suave){
+  const p = $('.tel-lei .lei-papel'); if (!p) return;
+  const max = p.scrollHeight - p.clientHeight;
+  const alvo = Math.min(max, Math.max(0, (DB.config.rolagem | 0) * p.clientHeight * 0.5));
+  p.scrollTo({ top: alvo, behavior: suave ? 'smooth' : 'auto' });
+  const ct = $('#continua'); if (ct) ct.hidden = alvo >= max - 2;
+}
+// Na visão dos 5 momentos, cenas longas descem sozinhas devagar e depois voltam ao topo.
+let autoRaf = 0;
+function pararAutoRolagem(){ cancelAnimationFrame(autoRaf); autoRaf = 0; }
+function iniciarAutoRolagem(){
+  pararAutoRolagem();
+  const els = $$('.tent .papel').map(el => ({ el, pos: 0, pausa: 4000, voltar: false }));
+  let ant = performance.now();
+  const passo = agora => {
+    const dt = Math.min(100, agora - ant); ant = agora;
+    for (const x of els){
+      const max = x.el.scrollHeight - x.el.clientHeight;
+      if (max <= 2) continue;
+      if (x.pausa > 0){ x.pausa -= dt; continue; }
+      if (x.voltar){ x.voltar = false; x.pos = 0; x.el.scrollTo({ top: 0, behavior: 'smooth' }); x.pausa = 5000; continue; }
+      x.pos += dt * 0.025;
+      if (x.pos >= max){ x.pos = max; x.el.scrollTop = max; x.pausa = 4000; x.voltar = true; continue; }
+      x.el.scrollTop = x.pos;
+    }
+    autoRaf = requestAnimationFrame(passo);
+  };
+  autoRaf = requestAnimationFrame(passo);
+}
 addEventListener('keydown', e => {
   if (R !== 'telao' || !DB.config.modoLeitura || !store) return;
   const L = cenasOrdenadas(); if (!L.length) return;
-  const i = leituraAtual().i;
+  const i = leituraAtual().i, r = DB.config.rolagem | 0;
+  if (['ArrowDown','PageDown'].includes(e.key)){ e.preventDefault(); return store.update('config', { rolagem: Math.min(99, r + 1) }); }
+  if (['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); return store.update('config', { rolagem: Math.max(0, r - 1) }); }
   let n = i;
-  if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) n = Math.min(L.length - 1, i + 1);
-  else if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) n = Math.max(0, i - 1);
+  if (['ArrowRight',' '].includes(e.key)) n = Math.min(L.length - 1, i + 1);
+  else if (e.key === 'ArrowLeft') n = Math.max(0, i - 1);
   else return;
   e.preventDefault();
-  if (n !== i) store.update('config', { indiceLeitura: n });
+  if (n !== i) store.update('config', { indiceLeitura: n, rolagem: 0 });
 });
 let rzT; addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { if (R === 'telao') renderTelao(true); }, 200); });
 
@@ -930,6 +972,7 @@ function renderPainel(){
       <div class="row"><div><b>${c.modoLeitura ? 'Ligado' : 'Desligado'}</b><small>Tela grande e celulares mostram a mesma cena.</small></div>
         <button class="btn ${c.modoLeitura ? '' : 'pri'}" data-act="leitura">${c.modoLeitura ? 'Desligar' : 'Ligar'}</button></div>
       <div class="lnav"><button class="btn" data-act="nav" data-d="-1" ${i <= 0 ? 'disabled' : ''}>← Anterior</button><span>${g ? `Cena ${i+1} de ${L.length}` : 'Sem cenas'}</span><button class="btn" data-act="nav" data-d="1" ${i < 0 || i >= L.length - 1 ? 'disabled' : ''}>Próxima →</button></div>
+      ${g ? `<div class="lnav"><button class="btn" data-act="rolar" data-d="-1" ${(c.rolagem|0) <= 0 ? 'disabled' : ''}>▲ Subir</button><span>Rolar a cena<br>no telão</span><button class="btn" data-act="rolar" data-d="1">▼ Descer</button></div>` : ''}
       ${g ? `<div class="lei-info">Momento ${g.momento} de 5 · ${esc(nomeGrupo(g.nome))}</div><div class="papel mini">${roteiroDe(g)}</div>` : '<p class="vazio">As cenas aparecem aqui quando os grupos enviarem.</p>'}
     </section>
 
@@ -970,11 +1013,12 @@ const painelActs = {
   sair(){ SS.set('rav.pin', null); renderPin(); },
   travar(){ store.update('config', { travado: !DB.config.travado }); },
   qr(){ const gs = gruposArr(); const vis = DB.config.mostrarQR === true || (gs.length === 0 && DB.config.mostrarQR !== false); store.update('config', { mostrarQR: !vis }); },
-  leitura(){ store.update('config', { modoLeitura: !DB.config.modoLeitura, indiceLeitura: Math.max(0, leituraAtual().i) }); },
-  nav(b){ const { L, i } = leituraAtual(); if (!L.length) return; const n = Math.min(L.length - 1, Math.max(0, i + +b.dataset.d)); store.update('config', { indiceLeitura: n }); },
+  leitura(){ store.update('config', { modoLeitura: !DB.config.modoLeitura, indiceLeitura: Math.max(0, leituraAtual().i), rolagem: 0 }); },
+  nav(b){ const { L, i } = leituraAtual(); if (!L.length) return; const n = Math.min(L.length - 1, Math.max(0, i + +b.dataset.d)); store.update('config', { indiceLeitura: n, rolagem: 0 }); },
+  rolar(b){ store.update('config', { rolagem: Math.min(99, Math.max(0, (DB.config.rolagem | 0) + +b.dataset.d)) }); },
   abrir(b){ const id = b.dataset.id; abertos.has(id) ? abertos.delete(id) : abertos.add(id); renderPainel(); },
   destacar(b){ const id = b.dataset.id; store.update('config', { destaque: DB.config.destaque === id ? null : id }); },
-  lerEsta(b){ const L = cenasOrdenadas(); const n = L.findIndex(x => x.id === b.dataset.id); if (n >= 0) store.update('config', { indiceLeitura: n, modoLeitura: true }); },
+  lerEsta(b){ const L = cenasOrdenadas(); const n = L.findIndex(x => x.id === b.dataset.id); if (n >= 0) store.update('config', { indiceLeitura: n, modoLeitura: true, rolagem: 0 }); },
   async apagar(b){
     const id = b.dataset.id, g = DB.grupos[id]; if (!g) return;
     if (!(await confirmar(`Apagar o ${nomeGrupo(g.nome)} e a cena dele? Não dá para desfazer.`, 'Apagar', true))) return;
