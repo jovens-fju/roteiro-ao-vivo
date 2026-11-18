@@ -79,7 +79,7 @@
               }
             },
             "blocos": {
-              ".validate": "!newData.child('8').exists()",
+              ".validate": "!newData.child('60').exists()",
               "$i": {
                 ".validate": "newData.hasChildren(['tipo', 'texto'])",
                 "tipo": {

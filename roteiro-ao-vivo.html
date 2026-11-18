@@ -314,7 +314,7 @@ const PIN = '1717';
 // Endereço público do site (usado nos QR codes).
 const SITE_URL = 'https://jovens-fju.github.io/roteiro-ao-vivo/';
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
-const MAX_ACOES = 4, MAX_FALAS = 4, MIN_ACOES = 1, MIN_FALAS = 2;
+const MIN_ACOES = 1, MIN_FALAS = 2; // mínimo para enviar; não há máximo
 
 const MOMENTOS = [
   { n:1, titulo:'Davi chega ao campo de batalha',
@@ -355,8 +355,7 @@ const CHECKS = [
   'Cabeçalho completo (EXT/INT, lugar, DIA/NOITE)',
   'Na ação, só o que se vê',
   'Tem um gesto que mostra o sentimento',
-  '2 a 4 falas curtas',
-  'Dá para gravar com um celular',
+  'Pelo menos 2 falas curtas',
 ];
 const RUBRICAS = ['FIRME','BAIXINHO','RINDO'];
 const STATUS_TXT = { escolhendo:'escolhendo o momento', respondendo:'respondendo as perguntas', escrevendo:'escrevendo', enviado:'cena enviada' };
@@ -515,9 +514,9 @@ let P;
 function novoP(){
   return { id: 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), nome:'', momento:0, step:1,
     perguntas:{ quem:'', oque:'', onde:'', quando:'', porque:'', como:'' }, cena:null, cenaM:0,
-    checks:[false,false,false,false,false], registrado:false, view:'etapas' };
+    checks:CHECKS.map(() => false), registrado:false, view:'etapas' };
 }
-function loadP(){ const v = LS.get(PKEY, null); P = Object.assign(novoP(), v && v.id ? v : {}); }
+function loadP(){ const v = LS.get(PKEY, null); P = Object.assign(novoP(), v && v.id ? v : {}); P.checks = CHECKS.map((_, i) => !!(P.checks || [])[i]); }
 function saveP(){ LS.set(PKEY, P); }
 const statusP = () => P.step >= 5 ? 'enviado' : P.step === 1 ? 'escolhendo' : P.step === 2 ? 'respondendo' : 'escrevendo';
 const perguntasLimpa = () => Object.fromEntries(PERGUNTAS.map(q => [q.k, String(P.perguntas[q.k]||'').trim().slice(0, 150)]));
@@ -590,7 +589,7 @@ function stepHTML(s){
         <div class="cab-prev" id="cabPrev">${esc(cabTxt(c))}</div>
       </section>
       <section class="box"><h3>Corpo da cena</h3>
-        <p class="dica-min">Para enviar: pelo menos 1 ação e 2 falas. No máximo 4 de cada.</p>
+        <p class="dica-min">Para enviar: pelo menos 1 ação e 2 falas. Depois, coloquem quantas quiserem.</p>
         <div id="blocos"></div>
         <div class="add"><button type="button" class="btn" data-act="add" data-t="acao" id="addA">+ Ação</button><button type="button" class="btn" data-act="add" data-t="fala" id="addF">+ Fala</button></div>
         <p class="contagem" id="cont"></p>
@@ -642,13 +641,10 @@ function atualizaCena(){
   const c = cenaContagem();
   const pv = $('#prev'); if (pv) pv.innerHTML = roteiroHTML(P.momento, P.cena);
   const cp = $('#cabPrev'); if (cp) cp.textContent = cabTxt(P.cena.cabecalho);
-  const a = $('#addA'), f = $('#addF');
-  if (a) a.disabled = c.acoes >= MAX_ACOES;
-  if (f) f.disabled = c.falas >= MAX_FALAS;
   const ct = $('#cont');
   if (ct){
     const ok = c.acoesOk >= MIN_ACOES && c.falasOk >= MIN_FALAS;
-    ct.textContent = `Ações: ${c.acoes} de ${MAX_ACOES} · Falas: ${c.falas} de ${MAX_FALAS}` + (ok ? ' · Pronto para conferir!' : '');
+    ct.textContent = `Ações: ${c.acoes} · Falas: ${c.falas}` + (ok ? ' · Pronto para conferir!' : '');
     ct.classList.toggle('ok', ok);
   }
   phoneDyn();
@@ -764,7 +760,6 @@ const phoneActs = {
   cab(b){ P.cena.cabecalho[b.dataset.k] = b.dataset.v; saveP(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); atualizaCena(); },
   add(b){
     const t = b.dataset.t, c = cenaContagem();
-    if ((t === 'acao' && c.acoes >= MAX_ACOES) || (t === 'fala' && c.falas >= MAX_FALAS)) return;
     P.cena.blocos.push(t === 'acao' ? { tipo:'acao', texto:'' } : { tipo:'fala', personagem:'', rubrica:'', texto:'' });
     saveP(); renderBlocos();
     const bls = $$('#blocos .bl'); const ult = bls.at(-1); if (ult) ult.scrollIntoView({ behavior:'smooth', block:'center' });
