@@ -79,7 +79,7 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 
 1. Abra `https://jovens-fju.github.io/roteiro-ao-vivo/#/telao` numa janela grande.
 2. Abra `https://jovens-fju.github.io/roteiro-ao-vivo/` no celular (ou numa janela estreita).
-3. No celular, digite um nome de grupo, escolha um momento, responda as 6 perguntas, escreva 1 ação e 2 falas, marque o checklist e envie.
+3. No celular, digite um nome de grupo, escolha um momento, responda as 6 perguntas, escreva pelo menos 4 ações e 4 falas, marque o checklist e envie.
 4. A tela grande mostra o status ("respondendo as perguntas...", "escrevendo...") e depois a cena chegando.
 5. Abra `#/painel` (PIN 1717) e apague o grupo de teste.
 

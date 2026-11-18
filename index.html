@@ -334,7 +334,7 @@ const PIN = '1717';
 // Endereço público do site (usado nos QR codes).
 const SITE_URL = 'https://jovens-fju.github.io/roteiro-ao-vivo/';
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
-const MIN_ACOES = 1, MIN_FALAS = 2; // mínimo para enviar; não há máximo
+const MIN_ACOES = 4, MIN_FALAS = 4; // mínimo para enviar; não há máximo
 
 const MOMENTOS = [
   { n:1, titulo:'Davi chega ao campo de batalha',
@@ -375,7 +375,7 @@ const CHECKS = [
   'Cabeçalho completo (EXT/INT, lugar, DIA/NOITE)',
   'Na ação, só o que se vê',
   'Tem um gesto que mostra o sentimento',
-  'Pelo menos 2 falas',
+  'Pelo menos 4 ações e 4 falas',
 ];
 const RUBRICAS = ['FIRME','BAIXINHO','RINDO'];
 const STATUS_TXT = { escolhendo:'escolhendo o momento', respondendo:'respondendo as perguntas', escrevendo:'escrevendo', enviado:'cena enviada' };
@@ -609,7 +609,7 @@ function stepHTML(s){
         <div class="cab-prev" id="cabPrev">${esc(cabTxt(c))}</div>
       </section>
       <section class="box"><h3>Corpo da cena</h3>
-        <p class="dica-min">Para enviar: pelo menos 1 ação e 2 falas. Depois, coloquem quantas quiserem.</p>
+        <p class="dica-min">Para enviar: pelo menos 4 ações e 4 falas. Depois, coloquem quantas quiserem.</p>
         <div id="blocos"></div>
         <div class="add"><button type="button" class="btn" data-act="add" data-t="acao" id="addA">+ Ação</button><button type="button" class="btn" data-act="add" data-t="fala" id="addF">+ Fala</button></div>
         <p class="contagem" id="cont"></p>
