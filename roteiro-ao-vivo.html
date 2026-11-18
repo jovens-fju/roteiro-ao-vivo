@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roteiro ao Vivo</title>
+<meta name="theme-color" content="#14110F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!--FIREBASE_CONFIG-->
+<style>
+:root{
+  --bg:#14110F; --bg2:#1F1A15; --card:#2B241C; --line:#41372b;
+  --gold:#E0B050; --gold2:#f0c870; --txt:#F4EBDD; --txt2:#CFC3AE;
+  --paper:#FBFAF6; --ink:#1c1915; --danger:#e8836a; --ok:#8fcf8a;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 'DM Sans',system-ui,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.01em;line-height:1.15;margin:0 0 .5em}
+h1{font-size:28px}h2{font-size:21px}h3{font-size:17px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+button{font:inherit;color:inherit}
+input,textarea{font:inherit;font-size:16px}
+[hidden]{display:none!important}
+a{color:var(--gold)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---------- botões e campos ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 18px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--txt);font-weight:700;cursor:pointer;text-decoration:none;text-align:center}
+.btn:hover{border-color:var(--gold)}
+.btn.pri{background:var(--gold);border-color:var(--gold);color:#14110F}
+.btn.pri:hover{background:var(--gold2)}
+.btn.danger{border-color:var(--danger);color:var(--danger);background:transparent}
+.btn.ghost{background:transparent}
+.btn.full{width:100%}
+.btn:disabled,button:disabled{opacity:.4;cursor:not-allowed}
+.campo{display:block;margin:0 0 14px}
+.campo>span{display:block;font-weight:700;margin-bottom:6px}
+.campo input,.campo textarea,.bl textarea,.bl input{width:100%;min-height:48px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--txt);outline:none}
+.campo input:focus,.bl textarea:focus,.bl input:focus{border-color:var(--gold)}
+textarea{resize:vertical;line-height:1.4}
+::placeholder{color:#8f8576;opacity:1}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset:disabled{opacity:.55}
+
+/* ---------- roteiro (formato igual em todas as telas) ---------- */
+.papel{background:var(--paper);color:var(--ink);border-radius:10px;padding:18px 16px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.rot{font-family:'Courier Prime','Courier New',monospace;line-height:1.35;color:var(--ink);text-align:left}
+.rot-cab{font-weight:700;text-transform:uppercase;margin:0 0 .9em}
+.rot-acao{margin:0 0 .9em;white-space:pre-wrap;overflow-wrap:anywhere}
+.rot-dlg{margin:0 0 .9em}
+.rot-pers{padding-left:37%;text-transform:uppercase}
+.rot-rub{padding-left:27%;padding-right:22%}
+.rot-fala{padding-left:17%;padding-right:15%;white-space:pre-wrap;overflow-wrap:anywhere}
+.rot-vazio{color:#8a8070;font-style:italic}
+
+/* ---------- celular ---------- */
+.cel{max-width:640px;margin:0 auto;padding:0 16px 48px}
+.cel-top{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 10px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.marca{font-family:'Oswald';font-size:15px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:10px}
+.marca span{color:var(--txt2);letter-spacing:.04em}
+.prog{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;list-style:none;margin:0;padding:0}
+.prog li{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--txt2)}
+.prog li::before{content:"";height:6px;border-radius:3px;background:var(--line)}
+.prog li.ok::before{background:var(--gold)}
+.prog li.cur::before{background:linear-gradient(90deg,var(--gold) 50%,var(--line) 50%)}
+.prog li.cur{color:var(--txt);font-weight:700}
+.prog b{font-weight:700;margin-right:4px}
+.prog li span{display:inline}
+.moms{display:grid;gap:10px;margin-bottom:12px}
+.mom{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;gap:2px 12px;align-items:center;text-align:left;min-height:64px;padding:12px 14px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--card);cursor:pointer}
+.mom-n{grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:'Oswald';font-size:22px;background:var(--bg);color:var(--gold)}
+.mom-t{font-weight:700;font-size:17px}
+.mom-c{font-size:14px;color:var(--txt2)}
+.mom-c.tem{color:var(--gold)}
+.mom.sel{border-color:var(--gold);background:#3a2f20;box-shadow:0 0 0 2px var(--gold) inset}
+.mom.sel .mom-n{background:var(--gold);color:#14110F}
+.aviso{background:#3a2f20;border-left:4px solid var(--gold);padding:12px 14px;border-radius:10px;margin:0 0 14px}
+.nav{display:flex;gap:10px;margin-top:20px}
+.nav .btn{flex:1}
+.nav.col{flex-direction:column}
+.guia{background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:18px;border-left:4px solid var(--gold)}
+.guia-m{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;color:var(--gold);font-size:15px}
+.guia-p{font-size:18px;font-weight:500;margin-top:4px}
+.apoio{color:var(--gold);font-weight:700;margin:-4px 0 16px}
+.dica-min{color:var(--txt2);font-size:15px;margin:4px 0 12px}
+.box{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px 14px;margin-bottom:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.seg button{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.seg button small{font-weight:400;font-size:13px;color:var(--txt2)}
+.seg button.on{background:var(--gold);border-color:var(--gold);color:#14110F}
+.seg button.on small{color:#3b2f17}
+.cab-prev{font-family:'Courier Prime',monospace;font-weight:700;background:var(--paper);color:var(--ink);padding:12px 14px;border-radius:10px;font-size:17px}
+.bl{border:1.5px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:12px;background:var(--card)}
+.bl-acao{border-left:5px solid #9bb7d6}
+.bl-fala{border-left:5px solid var(--gold)}
+.bl-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.bl-h b{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:17px}
+.bl-ctr{display:flex;gap:6px}
+.bl-ctr button{width:48px;height:48px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:20px;cursor:pointer}
+.bl-info{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--txt2);margin:6px 0 10px}
+.bl-info .cc{white-space:nowrap}
+.lbl{font-weight:700;margin:4px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{min-height:48px;padding:8px 14px;border-radius:24px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;text-align:left;cursor:pointer}
+.chip.on{background:var(--gold);color:#14110F;border-color:var(--gold);font-weight:700}
+.chips.mini .chip{font-size:14px}
+.add{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.add button{min-height:56px;font-size:18px}
+.contagem{text-align:center;color:var(--txt2);font-size:15px;margin:10px 0 0}
+.contagem.ok{color:var(--ok)}
+.checks{display:grid;gap:10px;margin-bottom:18px}
+.chk{display:flex;gap:14px;align-items:center;min-height:56px;padding:10px 14px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);cursor:pointer;font-size:17px}
+.chk input{width:28px;height:28px;accent-color:var(--gold);flex:none}
+.chk:has(input:checked){border-color:var(--gold)}
+.enviado{text-align:center;padding:16px 0 4px}
+.ok-ico{width:72px;height:72px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:var(--gold);color:#14110F;font-size:40px;font-weight:700}
+.trava{background:#3a2f20;border:2px solid var(--gold);border-radius:var(--r);padding:16px;margin-bottom:16px;text-align:center;display:grid;gap:12px}
+.trava b{font-family:'Oswald';font-size:22px;color:var(--gold)}
+.todos .cel-top{display:flex;flex-direction:column;gap:10px}
+.tm{margin-bottom:22px}
+.tm h2{color:var(--gold);font-size:19px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.ent{margin-bottom:12px}
+.ent-g{font-size:14px;color:var(--txt2);margin-bottom:6px;font-weight:700}
+.ent.dest .papel{outline:4px solid var(--gold);outline-offset:0}
+.ent .ed{color:var(--gold);font-weight:400}
+.st-linha{background:var(--card);border-radius:12px;padding:14px;color:var(--txt2)}
+.vazio{color:var(--txt2);font-style:italic}
+.dest-top{background:#3a2f20;border-radius:var(--r);padding:12px;margin-bottom:22px}
+.lbl-dest{font-family:'Oswald';color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.chegando-cel{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:18px;color:var(--txt2)}
+
+/* digitação */
+.dots{display:inline-flex;gap:.22em;margin-left:.35em;vertical-align:middle}
+.dots i{width:.38em;height:.38em;border-radius:50%;background:var(--gold);animation:pisca 1.2s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes pisca{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-.18em)}}
+@keyframes chega{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.chega{animation:chega .9s cubic-bezier(.2,.7,.2,1) both}
+
+/* ---------- leitura (telão e celulares) ---------- */
+#leitura{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding:16px}
+html.lendo,html.lendo body{overflow:hidden}
+.lei{display:flex;flex-direction:column;gap:12px;max-width:900px;margin:0 auto}
+.lei-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;color:var(--gold);font-size:18px}
+.lei-tit{font-family:'Oswald';font-size:24px;font-weight:600}
+.lei-papel{font-size:19px}
+.lei-vazia{text-align:center;font-family:'Oswald';font-size:28px;color:var(--gold);padding-top:30vh}
+.lei-vazia small{display:block;font-family:'DM Sans';color:var(--txt2);font-size:18px;margin-top:8px}
+.lei-tag{display:inline-block;font-family:'DM Sans';font-size:13px;background:var(--gold);color:#14110F;border-radius:20px;padding:3px 10px;font-weight:700;margin-bottom:8px;letter-spacing:0;text-transform:none}
+
+/* ---------- telão ---------- */
+body.r-telao{overflow:hidden}
+.tel{height:100vh;height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:1.2vh;padding:2vh 1.6vw}
+.tel-top{display:flex;justify-content:space-between;align-items:baseline;gap:2vw}
+.tel-top h1{font-size:clamp(20px,2.4vw,48px);margin:0;color:var(--txt)}
+.tel-top h1 span{color:var(--gold)}
+.tel-top .lk{color:var(--txt2);font-size:clamp(13px,1.1vw,22px)}
+.grade{display:grid;gap:1vw;min-height:0}
+.tcol{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
+.tcol>header{display:flex;gap:.7vw;align-items:center;padding:1.2vh .8vw;border-bottom:1px solid var(--line);background:var(--card)}
+.tn{flex:none;width:clamp(28px,2.4vw,52px);height:clamp(28px,2.4vw,52px);border-radius:50%;display:grid;place-items:center;background:var(--gold);color:#14110F;font-family:'Oswald';font-weight:700;font-size:clamp(16px,1.4vw,30px)}
+.tt{font-family:'Oswald';font-size:clamp(14px,1.15vw,26px);line-height:1.15}
+.tcol-body{flex:1;min-height:0;display:grid;gap:.7vw;padding:.7vw;grid-auto-columns:1fr;grid-auto-flow:column}
+.tent{display:flex;flex-direction:column;min-height:0;min-width:0}
+.tent-g{font-weight:700;color:var(--gold);font-size:clamp(13px,1vw,22px);margin-bottom:.6vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tent .papel{flex:1;min-height:0;overflow:auto;padding:1vw;font-size:clamp(11px,.62vw + 4px,22px);scrollbar-width:thin}
+.tent.dest .papel{outline:.35vw solid var(--gold)}
+.tent.dest{position:relative;z-index:2}
+.tst{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;border:2px dashed var(--line);border-radius:10px;color:var(--txt2);font-size:clamp(14px,1.1vw,24px);padding:1vw}
+.aguarda{flex:1;display:flex;align-items:center;justify-content:center;color:#7d7262;font-size:clamp(13px,1vw,22px);text-align:center}
+.tfoot{display:flex;align-items:center;justify-content:space-between;gap:2vw}
+.cont{font-family:'Oswald';font-size:clamp(18px,1.9vw,40px)}
+.cont b{color:var(--gold)}
+.chegando{color:var(--txt2);font-size:clamp(13px,1vw,22px);flex:1;text-align:center}
+.tqr{display:flex;align-items:center;gap:.8vw;color:var(--txt2);font-size:clamp(12px,.9vw,20px)}
+.qrbox{background:var(--paper);padding:6px;border-radius:8px;line-height:0}
+.qrbox img,.qrbox canvas{width:100%!important;height:auto!important;display:block}
+.tqr .qrbox{width:clamp(60px,5.5vw,120px)}
+.espera{height:100vh;height:100dvh;display:grid;grid-template-columns:1.3fr 1fr;align-items:center;gap:5vw;padding:6vh 6vw}
+.esp-k{font-family:'Oswald';text-transform:uppercase;letter-spacing:.2em;color:var(--gold);font-size:clamp(14px,1.4vw,28px)}
+.espera h1{font-size:clamp(36px,5.4vw,120px);margin:.2em 0 .3em}
+.espera p{font-size:clamp(17px,1.8vw,38px);color:var(--txt2);margin:0 0 .8em}
+.esp-link{font-family:'Courier Prime',monospace;font-weight:700;font-size:clamp(16px,1.9vw,40px);color:var(--gold);word-break:break-all}
+.esp-qr .qrbox{padding:clamp(10px,1.4vw,28px);border-radius:18px;max-width:min(38vw,70vh);margin-left:auto}
+.spot{position:fixed;inset:0;z-index:20;background:rgba(10,8,6,.78);display:grid;place-items:center;padding:4vh 6vw}
+.spot-card{width:min(1100px,88vw);max-height:90vh;display:flex;flex-direction:column;gap:1.2vh}
+.spot-h{font-family:'Oswald';color:var(--gold);text-transform:uppercase;letter-spacing:.06em;font-size:clamp(16px,1.6vw,34px)}
+.spot .papel{outline:.4vw solid var(--gold);overflow:hidden;padding:2.4vw 3vw;min-height:0}
+.tel-lei{height:100vh;height:100dvh;padding:3vh 5vw;display:flex;flex-direction:column;gap:1.5vh}
+.tel-lei .lei{max-width:none;width:100%;height:100%;min-height:0}
+.tel-lei .lei-top{font-size:clamp(18px,2vw,42px)}
+.tel-lei .lei-tit{font-size:clamp(22px,2.6vw,56px)}
+.tel-lei .lei-papel{flex:1;min-height:0;overflow:hidden;padding:2.5vw 4vw}
+.tel-lei .lei-papel .rot{max-width:70ch;margin:0 auto}
+.tel-lei .dica-teclas{color:#7d7262;font-size:clamp(12px,.9vw,18px);text-align:right}
+@media (max-width:900px){
+  body.r-telao{overflow:auto}
+  .tel{height:auto;min-height:100vh}
+  .grade{grid-template-columns:1fr 1fr!important}
+  .tcol{min-height:300px}
+  .espera{grid-template-columns:1fr;height:auto;min-height:100vh;text-align:center}
+  .esp-qr .qrbox{margin:0 auto;max-width:70vw}
+  .tfoot{flex-wrap:wrap}
+}
+@media (max-width:560px){.grade{grid-template-columns:1fr!important}}
+
+/* ---------- painel ---------- */
+.pn{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+.pn-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.pn-top h1{margin:0}
+.badge{font-size:13px;padding:5px 10px;border-radius:20px;background:var(--card);color:var(--txt2);border:1px solid var(--line)}
+.badge.on{color:var(--ok);border-color:#3f6b3c}
+.badge.off{color:var(--danger);border-color:var(--danger)}
+.pn-res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.pn-res div{background:var(--card);border-radius:12px;padding:10px;text-align:center;color:var(--txt2);font-size:14px}
+.pn-res b{display:block;font-family:'Oswald';font-size:28px;color:var(--gold)}
+.pcard{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px 14px;margin-bottom:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+.row+.row{border-top:1px solid var(--line)}
+.row small{display:block;color:var(--txt2);font-size:14px}
+.row .btn{flex:none;min-width:150px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.lnav{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:10px 0}
+.lnav span{text-align:center;color:var(--txt2);font-size:15px}
+.lei-info{font-family:'Oswald';color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 8px}
+.papel.mini{font-size:14px;max-height:340px;overflow:auto;padding:14px 12px}
+.pg{border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--card)}
+.pg.dest{border-color:var(--gold)}
+.pg-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pg-h small{display:block;color:var(--txt2);font-size:14px}
+.pill{flex:none;font-size:13px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--bg);border:1px solid var(--line)}
+.pill.s-enviado{background:var(--gold);color:#14110F;border-color:var(--gold)}
+.pill.s-escrevendo{color:var(--gold);border-color:var(--gold)}
+.pg-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pg-acts .btn{min-height:44px;padding:8px 12px;font-size:15px;flex:1 1 auto}
+.pg-det{margin-top:12px}
+.pg-det dl{margin:0 0 12px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px}
+.pg-det dt{font-weight:700;color:var(--gold)}
+.pg-det dd{margin:0}
+.pn-qr{display:flex;justify-content:center}
+.pn-qr .qrbox{width:min(260px,70vw)}
+.link{font-family:'Courier Prime',monospace;font-weight:700;color:var(--gold);text-align:center;word-break:break-all}
+.pin{max-width:360px;margin:12vh auto 0;padding:0 16px;text-align:center}
+.pin input{text-align:center;font-size:28px;letter-spacing:.4em}
+.erro{color:var(--danger);min-height:1.4em}
+.pn-ferr .btn{margin-bottom:10px}
+
+/* ---------- modal e avisos ---------- */
+#modal .mb{position:fixed;inset:0;z-index:100;background:rgba(8,6,5,.72);display:grid;place-items:center;padding:16px}
+#modal .mc{background:var(--bg2);border:1.5px solid var(--gold);border-radius:var(--r);padding:20px;max-width:420px;width:100%}
+#modal .mc p{font-size:18px;margin:0 0 18px}
+#modal .mbtn{display:flex;gap:10px}
+#modal .mbtn .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:90;background:var(--gold);color:#14110F;font-weight:700;padding:12px 18px;border-radius:12px;max-width:calc(100vw - 32px);box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s}
+#toast.on{opacity:1}
+#net{position:fixed;top:0;left:0;right:0;z-index:80;background:var(--danger);color:#14110F;text-align:center;font-weight:700;padding:10px 16px}
+.carregando{padding:30vh 16px;text-align:center;color:var(--txt2);font-family:'Oswald';font-size:22px}
+
+/* ---------- impressão ---------- */
+body.r-imprimir{background:#5b534a}
+.pr-bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+.pr-bar span{color:var(--txt2)}
+.folhas{padding:24px 16px}
+.folha{background:#fff;color:var(--ink);width:min(210mm,100%);min-height:200mm;margin:0 auto 24px;padding:22mm 20mm;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.folha .rot{font-size:12pt}
+.capa{display:flex;align-items:center;justify-content:center;text-align:center;min-height:270mm}
+.capa-k{font-family:'Courier Prime',monospace;letter-spacing:.2em;text-transform:uppercase;color:#6b6152}
+.capa h1{font-family:'Courier Prime',monospace;font-weight:700;font-size:34pt;margin:12mm 0 4mm;text-transform:uppercase}
+.capa h2{font-family:'Courier Prime',monospace;font-weight:400;font-size:18pt;margin:0 0 6mm}
+.capa-d{font-family:'Courier Prime',monospace;margin:0 0 14mm}
+.capa table{border-collapse:collapse;margin:0 auto;font-family:'Courier Prime',monospace;font-size:11pt;text-align:left}
+.capa th,.capa td{padding:2mm 4mm;border-bottom:1px solid #d6d0c4}
+.pr-g{font-family:'DM Sans',sans-serif;font-size:9pt;color:#8a8070;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8mm;border-bottom:1px solid #e3ded4;padding-bottom:2mm}
+.anexo h2{font-family:'Courier Prime',monospace;font-size:15pt;text-transform:uppercase}
+.anx{break-inside:avoid;margin-bottom:8mm;font-family:'DM Sans',sans-serif;font-size:10.5pt}
+.anx h3{font-family:'Courier Prime',monospace;color:var(--ink);font-size:12pt;letter-spacing:0;text-transform:none;margin-bottom:2mm}
+.anx dl{display:grid;grid-template-columns:24mm 1fr;gap:1mm 4mm;margin:0}
+.anx dt{font-weight:700}.anx dd{margin:0}
+@page{size:A4;margin:22mm 20mm}
+@media print{
+  .no-print,#net,#toast,#modal{display:none!important}
+  body,body.r-imprimir{background:#fff}
+  .folhas{padding:0}
+  .folha{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}
+  .folha+.folha{break-before:page}
+  .capa{min-height:240mm}
+  .rot-cab,.pr-g{break-after:avoid}
+  .rot-dlg,.rot-acao{break-inside:avoid}
+  .rot-pers,.rot-rub{break-after:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><div class="carregando">Carregando...</div></div>
+<div id="leitura" hidden></div>
+<div id="modal" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="net" hidden>Sem internet, tentando reconectar...</div>
+
+<script type="module">
+/* =====================================================================
+   Roteiro ao Vivo: Davi e Golias (1 Samuel 17)
+   Rotas: #/ celular dos grupos, #/telao tela grande, #/painel apresentador,
+   #/imprimir versão para PDF.
+   ===================================================================== */
+
+// PIN do painel do apresentador. Troque aqui se quiser.
+const PIN = '1717';
+// Endereço público do site (usado nos QR codes).
+const SITE_URL = 'https://jovens-fju.github.io/roteiro-ao-vivo/';
+const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const MAX_ACOES = 4, MAX_FALAS = 4, MIN_ACOES = 1, MIN_FALAS = 2;
+
+const MOMENTOS = [
+  { n:1, titulo:'Davi chega ao campo de batalha',
+    pergunta:'O que Davi vê e ouve que mais ninguém parece notar?',
+    tipo:'EXT', local:'ACAMPAMENTO ISRAELITA', periodo:'DIA',
+    personagens:['DAVI','ELIABE','SOLDADO'],
+    pistas:['Davi chega com pães e queijos para os irmãos.','A voz de Golias ecoa pelo vale.','Os soldados recuam com medo.','Eliabe puxa Davi pelo braço.'] },
+  { n:2, titulo:'Davi convence o rei Saul',
+    pergunta:'Como um garoto convence um rei? O que ele conta do leão e do urso?',
+    tipo:'INT', local:'TENDA DE SAUL', periodo:'DIA',
+    personagens:['DAVI','SAUL','ABNER'],
+    pistas:['Saul mede Davi de cima a baixo.','Davi mostra as cicatrizes nas mãos.','A armadura de Saul fica grande demais em Davi.','Davi tira o capacete e devolve.'] },
+  { n:3, titulo:'Davi e Golias frente a frente',
+    pergunta:'Como Golias humilha? Como Davi responde sem gritar?',
+    tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
+    personagens:['GOLIAS','DAVI','ESCUDEIRO'],
+    pistas:['Golias ri e aponta para o cajado.','Davi escolhe cinco pedras no riacho.','O escudeiro de Golias recua um passo.','Davi não desvia o olhar.'] },
+  { n:4, titulo:'A pedra',
+    pergunta:'O que a câmera mostra no segundo antes do arremesso?',
+    tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
+    personagens:['DAVI','GOLIAS','SAUL'],
+    pistas:['A funda começa a girar.','Silêncio. Só o vento.','Golias baixa o escudo.','CLOSE na pedra.'] },
+  { n:5, titulo:'Depois da vitória',
+    pergunta:'Como reagem Saul, os irmãos de Davi e o povo?',
+    tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
+    personagens:['SAUL','DAVI','ELIABE','ABNER'],
+    pistas:['Os filisteus fogem.','Eliabe não consegue olhar para o irmão.','Saul pergunta a Abner de quem é aquele rapaz.','Davi se ajoelha e agradece.'] },
+];
+const PERGUNTAS = [
+  { k:'quem',   l:'Quem?',     ph:'Ex.: Davi, Golias e o exército de Saul' },
+  { k:'oque',   l:'O quê?',    ph:'Ex.: Davi aceita enfrentar o gigante' },
+  { k:'onde',   l:'Onde?',     ph:'Ex.: no Vale de Elá, perto do riacho' },
+  { k:'quando', l:'Quando?',   ph:'Ex.: de manhã, depois de 40 dias de desafio' },
+  { k:'porque', l:'Por quê?',  ph:'Ex.: ninguém tem coragem de responder a Golias' },
+  { k:'como',   l:'Como?',     ph:'Ex.: com uma funda e cinco pedras' },
+];
+const CHECKS = [
+  'Cabeçalho completo (EXT/INT, lugar, DIA/NOITE)',
+  'Na ação, só o que se vê',
+  'Tem um gesto que mostra o sentimento',
+  '2 a 4 falas curtas',
+  'Dá para gravar com um celular',
+];
+const RUBRICAS = ['FIRME','BAIXINHO','RINDO'];
+const STATUS_TXT = { escolhendo:'escolhendo o momento', respondendo:'respondendo as perguntas', escrevendo:'escrevendo', enviado:'cena enviada' };
+const STATUS_LBL = { escolhendo:'Escolhendo', respondendo:'Respondendo', escrevendo:'Escrevendo', enviado:'Enviado' };
+
+// ---------- utilidades ----------
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+};
+const SS = {
+  get(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch(e){} },
+};
+const clean = v => JSON.parse(JSON.stringify(v));
+const nomeGrupo = n => { n = String(n||'').trim(); return /^grupo\b/i.test(n) ? n : 'Grupo ' + n; };
+const cabTxt = c => { c = c||{}; return `${c.tipo||'EXT'}. ${(c.local||'').trim().toUpperCase() || 'LOCAL'} - ${c.periodo||'DIA'}`; };
+const rubLimpa = r => String(r||'').replace(/[()]/g,'').trim().toLowerCase();
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'), 3500); }
+
+function confirmar(msg, ok='Confirmar', perigo=false){
+  return new Promise(res => {
+    const m = $('#modal');
+    m.innerHTML = `<div class="mb"><div class="mc" role="dialog" aria-modal="true"><p>${esc(msg)}</p>
+      <div class="mbtn"><button class="btn" data-m="0">Cancelar</button><button class="btn ${perigo?'danger':'pri'}" data-m="1">${esc(ok)}</button></div></div></div>`;
+    m.hidden = false;
+    const fim = v => { m.hidden = true; m.innerHTML = ''; m.onclick = null; res(v); };
+    m.onclick = e => { const b = e.target.closest('[data-m]'); if (b) fim(b.dataset.m === '1'); else if (e.target.classList.contains('mb')) fim(false); };
+    $('[data-m="1"]', m).focus();
+  });
+}
+
+function qr(el, cor='#14110F'){
+  if (!el) return;
+  el.innerHTML = '<div class="qrbox"></div>';
+  const box = el.firstChild;
+  if (!window.QRCode){ box.textContent = SITE_URL; box.style.lineHeight='1.3'; box.style.color='#14110F'; return; }
+  new window.QRCode(box, { text: SITE_URL, width: 512, height: 512, colorDark: cor, colorLight: '#FBFAF6', correctLevel: window.QRCode.CorrectLevel.M });
+  const img = box.querySelector('img'); if (img) img.alt = 'QR code para ' + SITE_URL;
+}
+
+// ---------- dados (Firebase ou modo local) ----------
+let DB = { config:{}, grupos:{} };
+let loaded = false, online = true, store = null;
+let netT;
+function setOnline(v){
+  online = v; clearTimeout(netT);
+  if (v) $('#net').hidden = true;
+  else netT = setTimeout(() => { if (!online) $('#net').hidden = false; }, 2500);
+  onData();
+}
+
+async function initStore(){
+  const cfg = window.FIREBASE_CONFIG;
+  if (cfg && cfg.databaseURL){
+    try {
+      const A = await import(FIREBASE_SDK + 'firebase-app.js');
+      const D = await import(FIREBASE_SDK + 'firebase-database.js');
+      const db = D.getDatabase(A.initializeApp(cfg));
+      const r = p => D.ref(db, 'sessao' + (p ? '/' + p : ''));
+      const erro = e => { console.error(e); toast('Não foi possível salvar. Tente de novo.'); };
+      store = {
+        mode:'firebase',
+        set: (p, v) => D.set(r(p), v == null ? null : clean(v)).catch(erro),
+        update: (p, v) => D.update(r(p), clean(v)).catch(erro),
+        remove: p => D.remove(r(p)).catch(erro),
+      };
+      D.onValue(r(''), snap => { const v = snap.val() || {}; DB = { config: v.config || {}, grupos: v.grupos || {} }; loaded = true; onData(); },
+        e => { console.error(e); toast('Sem permissão para ler o banco.'); });
+      online = false;
+      D.onValue(D.ref(db, '.info/connected'), s => setOnline(!!s.val()));
+      return;
+    } catch (e) { console.error('Firebase indisponível, usando modo local', e); }
+  }
+  // Modo local: sem Firebase. Sincroniza só entre abas do mesmo navegador (bom para testar).
+  const KEY = 'rav.localdb';
+  const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('rav') : null;
+  const ler = () => { const v = LS.get(KEY, {}); DB = { config: v.config || {}, grupos: v.grupos || {} }; loaded = true; onData(); };
+  const setPath = (o, p, v) => {
+    const ks = p.split('/').filter(Boolean);
+    if (!ks.length){ Object.keys(o).forEach(k => delete o[k]); if (v) Object.assign(o, v); return; }
+    let cur = o;
+    for (let i = 0; i < ks.length - 1; i++){ if (typeof cur[ks[i]] !== 'object' || !cur[ks[i]]) cur[ks[i]] = {}; cur = cur[ks[i]]; }
+    if (v == null) delete cur[ks.at(-1)]; else cur[ks.at(-1)] = v;
+  };
+  const aplica = fn => { const v = LS.get(KEY, {}); fn(v); LS.set(KEY, v); if (bc) bc.postMessage(1); ler(); };
+  store = {
+    mode:'local',
+    set: (p, v) => aplica(o => setPath(o, p, v == null ? null : clean(v))),
+    update: (p, v) => aplica(o => { const c = clean(v); for (const k in c) setPath(o, (p ? p + '/' : '') + k, c[k]); }),
+    remove: p => aplica(o => setPath(o, p, null)),
+  };
+  if (bc) bc.onmessage = ler;
+  addEventListener('storage', e => { if (e.key === KEY) ler(); });
+  ler();
+}
+
+const gruposArr = () => Object.entries(DB.grupos || {}).filter(([,g]) => g && typeof g === 'object').map(([id, g]) => ({ id, ...g }));
+const blocosDe = cena => { const b = cena && cena.blocos; return b ? (Array.isArray(b) ? b : Object.values(b)).filter(Boolean) : []; };
+const temCena = g => !!(g && g.cena && blocosDe(g.cena).length);
+const porCriacao = (a, b) => (a.criadoEm || 0) - (b.criadoEm || 0) || String(a.id).localeCompare(String(b.id));
+const porHistoria = (a, b) => (a.momento || 9) - (b.momento || 9) || porCriacao(a, b);
+const cenasOrdenadas = () => gruposArr().filter(g => temCena(g) && g.momento >= 1 && g.momento <= 5).sort(porHistoria);
+function leituraAtual(){
+  const L = cenasOrdenadas();
+  if (!L.length) return { L, i:-1, g:null };
+  const i = Math.min(Math.max(0, DB.config.indiceLeitura | 0), L.length - 1);
+  return { L, i, g: L[i] };
+}
+
+// ---------- formato de roteiro ----------
+function roteiroHTML(momento, cena){
+  const blocos = blocosDe(cena);
+  let h = `<div class="rot"><div class="rot-cab">${momento ? momento + '. ' : ''}${esc(cabTxt(cena && cena.cabecalho))}</div>`;
+  let algum = false;
+  for (const b of blocos){
+    if (b.tipo === 'acao'){
+      if (!String(b.texto||'').trim()) continue;
+      algum = true;
+      h += `<p class="rot-acao">${esc(b.texto.trim())}</p>`;
+    } else {
+      if (!String(b.personagem||'').trim() && !String(b.texto||'').trim()) continue;
+      algum = true;
+      const rub = rubLimpa(b.rubrica);
+      h += `<div class="rot-dlg"><div class="rot-pers">${esc(String(b.personagem||'').trim().toUpperCase() || 'PERSONAGEM')}</div>${rub ? `<div class="rot-rub">(${esc(rub)})</div>` : ''}<div class="rot-fala">${esc(String(b.texto||'').trim())}</div></div>`;
+    }
+  }
+  if (!algum) h += `<p class="rot-acao rot-vazio">A cena aparece aqui enquanto vocês escrevem.</p>`;
+  return h + '</div>';
+}
+const roteiroDe = g => roteiroHTML(g.momento, g.cena);
+const dots = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+
+function leituraHTML(){
+  const { L, i, g } = leituraAtual();
+  if (!g) return `<div class="lei-vazia">Modo Leitura<small>Nenhuma cena enviada ainda.</small></div>`;
+  const m = MOMENTOS[g.momento - 1];
+  return `<div class="lei"><div class="lei-top"><span>Momento ${g.momento} de 5 · ${esc(nomeGrupo(g.nome))}</span><span>Cena ${i+1} de ${L.length}</span></div>
+    <div class="lei-tit">${esc(m.titulo)}</div><div class="papel lei-papel">${roteiroDe(g)}</div></div>`;
+}
+function ajustaFonte(box, alvo, max, min){
+  if (!box || !alvo) return;
+  let s = max; alvo.style.fontSize = s + 'px';
+  while (s > min && box.scrollHeight > box.clientHeight + 1){ s -= 1; alvo.style.fontSize = s + 'px'; }
+}
+
+/* =====================================================================
+   CELULAR DOS GRUPOS (#/)
+   ===================================================================== */
+const PKEY = 'rav.grupo';
+let P;
+function novoP(){
+  return { id: 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), nome:'', momento:0, step:1,
+    perguntas:{ quem:'', oque:'', onde:'', quando:'', porque:'', como:'' }, cena:null, cenaM:0,
+    checks:[false,false,false,false,false], registrado:false, view:'etapas' };
+}
+function loadP(){ const v = LS.get(PKEY, null); P = Object.assign(novoP(), v && v.id ? v : {}); }
+function saveP(){ LS.set(PKEY, P); }
+const statusP = () => P.step >= 5 ? 'enviado' : P.step === 1 ? 'escolhendo' : P.step === 2 ? 'respondendo' : 'escrevendo';
+const perguntasLimpa = () => Object.fromEntries(PERGUNTAS.map(q => [q.k, String(P.perguntas[q.k]||'').trim().slice(0, 150)]));
+let pushT;
+function push(agora){ clearTimeout(pushT); if (agora) doPush(); else pushT = setTimeout(doPush, 700); }
+function doPush(extra){
+  if (String(P.nome).trim().length < 2) return;
+  const now = Date.now();
+  const d = { nome: P.nome.trim().slice(0, 30), momento: P.momento || 0, status: statusP(), perguntas: perguntasLimpa(), atualizadoEm: now, ...(extra||{}) };
+  if (!P.registrado){ d.criadoEm = now; P.registrado = true; saveP(); }
+  store && store.update('grupos/' + P.id, d);
+}
+const contaMom = n => gruposArr().filter(g => g.id !== P.id && g.momento === n).length;
+function cenaContagem(){
+  const bs = blocosDe(P.cena);
+  return {
+    acoes: bs.filter(b => b.tipo === 'acao').length,
+    falas: bs.filter(b => b.tipo === 'fala').length,
+    acoesOk: bs.filter(b => b.tipo === 'acao' && b.texto.trim()).length,
+    falasOk: bs.filter(b => b.tipo === 'fala' && b.texto.trim() && String(b.personagem||'').trim()).length,
+  };
+}
+const cenaValida = () => { const c = cenaContagem(); return P.cena && (P.cena.cabecalho.local||'').trim() && c.acoesOk >= MIN_ACOES && c.falasOk >= MIN_FALAS; };
+const perguntasOk = () => PERGUNTAS.every(q => String(P.perguntas[q.k]||'').trim().length >= 3);
+function ensureCena(){
+  if (P.cena && P.cenaM === P.momento) return;
+  const m = MOMENTOS[P.momento - 1];
+  P.cena = { cabecalho:{ tipo:m.tipo, local:m.local, periodo:m.periodo }, blocos:[{ tipo:'acao', texto:'' }] };
+  P.cenaM = P.momento;
+}
+function limparCena(){
+  const c = P.cena.cabecalho;
+  return {
+    cabecalho:{ tipo: c.tipo === 'INT' ? 'INT' : 'EXT', local: (c.local||'').trim().toUpperCase().slice(0, 50) || 'LOCAL', periodo: c.periodo === 'NOITE' ? 'NOITE' : 'DIA' },
+    blocos: blocosDe(P.cena).filter(b => b.texto.trim()).map(b => b.tipo === 'acao'
+      ? { tipo:'acao', texto: b.texto.trim().slice(0, 400) }
+      : Object.assign({ tipo:'fala', personagem: String(b.personagem||'').trim().toUpperCase().slice(0, 30) || 'PERSONAGEM', texto: b.texto.trim().slice(0, 200) },
+          rubLimpa(b.rubrica) ? { rubrica: String(b.rubrica).replace(/[()]/g,'').trim().slice(0, 30) } : {})),
+  };
+}
+
+function guiaHTML(){
+  const m = MOMENTOS[P.momento - 1];
+  return `<div class="guia"><div class="guia-m">Momento ${m.n}: ${esc(m.titulo)}</div><div class="guia-p">${esc(m.pergunta)}</div></div>`;
+}
+function stepHTML(s){
+  if (s === 1){
+    return `<h1>Quem são vocês?</h1>
+      <label class="campo"><span>Nome do grupo</span><input id="nome" data-f="nome" maxlength="30" autocomplete="off" enterkeyhint="done" placeholder="Ex.: Leão" value="${esc(P.nome)}"></label>
+      <h2>Escolham o momento da história</h2>
+      <div class="moms">${MOMENTOS.map(m => `<button type="button" class="mom ${P.momento===m.n?'sel':''}" data-act="momento" data-m="${m.n}" aria-pressed="${P.momento===m.n}"><span class="mom-n">${m.n}</span><span class="mom-t">${esc(m.titulo)}</span><span class="mom-c" data-cnt="${m.n}"></span></button>`).join('')}</div>
+      <p class="aviso" id="avisoRep" hidden>Outro grupo já está nesse momento. Vocês vão comparar as versões no fim!</p>
+      <p class="dica-min" id="falta"></p>
+      <div class="nav"><button type="button" class="btn pri" data-act="ir" data-s="2" id="nextBtn">Próximo</button></div>`;
+  }
+  if (s === 2){
+    return `${guiaHTML()}<h1>As 6 perguntas</h1>
+      <p class="apoio">Se vocês sabem responder, já sabem o que escrever.</p>
+      ${PERGUNTAS.map(q => `<label class="campo"><span>${q.l}</span><input data-q="${q.k}" maxlength="150" autocomplete="off" placeholder="${esc(q.ph)}" value="${esc(P.perguntas[q.k])}"></label>`).join('')}
+      <p class="dica-min" id="falta"></p>
+      <div class="nav"><button type="button" class="btn" data-act="ir" data-s="1">Voltar</button><button type="button" class="btn pri" data-act="ir" data-s="3" id="nextBtn">Próximo</button></div>`;
+  }
+  if (s === 3){
+    const c = P.cena.cabecalho;
+    return `${guiaHTML()}<h1>A cena</h1>
+      <section class="box"><h3>Cabeçalho</h3>
+        <div class="seg" data-seg="tipo"><button type="button" data-act="cab" data-k="tipo" data-v="EXT" class="${c.tipo==='EXT'?'on':''}">EXT<small>lugar aberto</small></button><button type="button" data-act="cab" data-k="tipo" data-v="INT" class="${c.tipo==='INT'?'on':''}">INT<small>lugar fechado</small></button></div>
+        <label class="campo"><span>Local</span><input data-cab="local" maxlength="50" autocomplete="off" value="${esc(c.local)}"></label>
+        <div class="seg" data-seg="periodo"><button type="button" data-act="cab" data-k="periodo" data-v="DIA" class="${c.periodo==='DIA'?'on':''}">DIA</button><button type="button" data-act="cab" data-k="periodo" data-v="NOITE" class="${c.periodo==='NOITE'?'on':''}">NOITE</button></div>
+        <div class="cab-prev" id="cabPrev">${esc(cabTxt(c))}</div>
+      </section>
+      <section class="box"><h3>Corpo da cena</h3>
+        <p class="dica-min">Para enviar: pelo menos 1 ação e 2 falas. No máximo 4 de cada.</p>
+        <div id="blocos"></div>
+        <div class="add"><button type="button" class="btn" data-act="add" data-t="acao" id="addA">+ Ação</button><button type="button" class="btn" data-act="add" data-t="fala" id="addF">+ Fala</button></div>
+        <p class="contagem" id="cont"></p>
+      </section>
+      <section class="box"><h3>Prévia do roteiro</h3><div class="papel" id="prev"></div></section>
+      <div class="nav"><button type="button" class="btn" data-act="ir" data-s="2">Voltar</button><button type="button" class="btn pri" data-act="ir" data-s="4" id="nextBtn">Próximo</button></div>`;
+  }
+  if (s === 4){
+    return `${guiaHTML()}<h1>Conferir e enviar</h1>
+      <p class="dica-min">Leiam a cena juntos e marquem cada item.</p>
+      <div class="checks">${CHECKS.map((t, i) => `<label class="chk"><input type="checkbox" data-chk="${i}" ${P.checks[i]?'checked':''}><span>${esc(t)}</span></label>`).join('')}</div>
+      <section class="box"><h3>Como vai ficar</h3><div class="papel">${roteiroHTML(P.momento, P.cena)}</div></section>
+      <p class="dica-min" id="falta"></p>
+      <div class="nav"><button type="button" class="btn" data-act="ir" data-s="3">Voltar</button><button type="button" class="btn pri" data-act="enviar" id="nextBtn">Enviar cena</button></div>`;
+  }
+  return `<div class="enviado"><div class="ok-ico" aria-hidden="true">✓</div><h1>Cena enviada!</h1><p class="dica-min">Ela já aparece no roteiro de todos.</p></div>
+    <div class="nav col"><button type="button" class="btn pri" data-act="todos">Ver o roteiro de todos</button><button type="button" class="btn" data-act="editar" id="editBtn">Editar e reenviar</button></div>
+    <section class="box" style="margin-top:20px"><h3>A cena de vocês</h3><div class="papel">${roteiroHTML(P.momento, P.cena)}</div></section>`;
+}
+
+function blocoHTML(b, i, n){
+  const m = MOMENTOS[P.momento - 1];
+  const ctr = `<div class="bl-ctr"><button type="button" data-act="mover" data-i="${i}" data-d="-1" ${i===0?'disabled':''} aria-label="Subir bloco">↑</button><button type="button" data-act="mover" data-i="${i}" data-d="1" ${i===n-1?'disabled':''} aria-label="Descer bloco">↓</button><button type="button" data-act="del" data-i="${i}" aria-label="Remover bloco">✕</button></div>`;
+  if (b.tipo === 'acao'){
+    return `<div class="bl bl-acao"><div class="bl-h"><b>Ação</b>${ctr}</div>
+      <textarea data-b="${i}" data-k="texto" maxlength="400" rows="3" placeholder="O que a câmera vê e ouve...">${esc(b.texto)}</textarea>
+      <div class="bl-info"><span>Só o que a câmera vê e ouve. Nada de 'ele pensou'.</span><span class="cc" data-cc="${i}">${b.texto.length}/400</span></div>
+      <div class="lbl">Pistas (toque para usar)</div>
+      <div class="chips">${m.pistas.map((p, j) => `<button type="button" class="chip" data-act="pista" data-i="${i}" data-j="${j}">${esc(p)}</button>`).join('')}</div></div>`;
+  }
+  const sug = m.personagens;
+  const outro = b.outro || (b.personagem && !sug.includes(b.personagem));
+  return `<div class="bl bl-fala"><div class="bl-h"><b>Fala</b>${ctr}</div>
+    <div class="lbl">Personagem</div>
+    <div class="chips">${sug.map(p => `<button type="button" class="chip ${!outro && b.personagem===p?'on':''}" data-act="pers" data-i="${i}" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip ${outro?'on':''}" data-act="pers" data-i="${i}" data-v="">Outro</button></div>
+    ${outro ? `<label class="campo"><span>Nome do personagem</span><input data-b="${i}" data-k="personagem" maxlength="30" autocomplete="off" placeholder="Ex.: JESSÉ" value="${esc(b.personagem)}"></label>` : ''}
+    <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, RINDO" value="${esc(b.rubrica||'')}"></label>
+    <div class="chips mini">${RUBRICAS.map(r => `<button type="button" class="chip ${String(b.rubrica||'').toUpperCase()===r?'on':''}" data-act="rub" data-i="${i}" data-v="${r}">${r}</button>`).join('')}</div>
+    <label class="campo" style="margin-bottom:0"><span>Fala</span><textarea data-b="${i}" data-k="texto" maxlength="200" rows="2" placeholder="O que o personagem diz">${esc(b.texto)}</textarea></label>
+    <div class="bl-info"><span>Curta, para falar em voz alta.</span><span class="cc" data-cc="${i}">${b.texto.length}/200</span></div></div>`;
+}
+function renderBlocos(){
+  const el = $('#blocos'); if (!el) return;
+  const bs = P.cena.blocos;
+  el.innerHTML = bs.length ? bs.map((b, i) => blocoHTML(b, i, bs.length)).join('') : '<p class="vazio">Nenhum bloco ainda. Use os botões abaixo.</p>';
+  atualizaCena();
+}
+function atualizaCena(){
+  const c = cenaContagem();
+  const pv = $('#prev'); if (pv) pv.innerHTML = roteiroHTML(P.momento, P.cena);
+  const cp = $('#cabPrev'); if (cp) cp.textContent = cabTxt(P.cena.cabecalho);
+  const a = $('#addA'), f = $('#addF');
+  if (a) a.disabled = c.acoes >= MAX_ACOES;
+  if (f) f.disabled = c.falas >= MAX_FALAS;
+  const ct = $('#cont');
+  if (ct){
+    const ok = c.acoesOk >= MIN_ACOES && c.falasOk >= MIN_FALAS;
+    ct.textContent = `Ações: ${c.acoes} de ${MAX_ACOES} · Falas: ${c.falas} de ${MAX_FALAS}` + (ok ? ' · Pronto para conferir!' : '');
+    ct.classList.toggle('ok', ok);
+  }
+  phoneDyn();
+}
+
+function renderPhone(topo){
+  document.body.className = 'r-celular';
+  if (P.view === 'todos') return renderTodos(topo);
+  if (P.step >= 3 && P.step <= 4) ensureCena();
+  const s = P.step, cur = Math.min(s, 4);
+  const prog = ['Grupo','Perguntas','Cena','Conferir'].map((t, i) => {
+    const n = i + 1, cls = s === 5 || n < cur ? 'ok' : n === cur ? 'cur' : '';
+    return `<li class="${cls}" ${n===cur && s!==5 ? 'aria-current="step"' : ''}><span><b>${n}</b>${t}</span></li>`;
+  }).join('');
+  $('#app').innerHTML = `<div class="cel">
+    <header class="cel-top"><div class="marca">Roteiro ao Vivo${P.nome.trim() && s > 1 ? ` · <span>${esc(nomeGrupo(P.nome))}</span>` : ''}</div><ol class="prog" aria-label="Etapas">${prog}</ol></header>
+    <div id="trava" class="trava" hidden><b>Envios encerrados. Hora da leitura!</b><button type="button" class="btn pri" data-act="todos">Ver o roteiro de todos</button></div>
+    <fieldset id="fs">${stepHTML(s)}</fieldset></div>`;
+  if (s === 3) renderBlocos();
+  phoneDyn();
+  if (topo) scrollTo(0, 0);
+}
+
+function phoneDyn(){
+  if (R !== 'celular' || P.view === 'todos') return;
+  const trav = !!DB.config.travado;
+  const tr = $('#trava'), fs = $('#fs');
+  if (tr){ tr.hidden = !trav; tr.querySelector('button').hidden = P.step === 5; }
+  if (fs) fs.disabled = trav && P.step < 5;
+  const eb = $('#editBtn'); if (eb) eb.hidden = trav;
+  const nb = $('#nextBtn'), falta = $('#falta');
+  let ok = true, msg = '';
+  if (P.step === 1){
+    $$('[data-cnt]').forEach(el => { const n = contaMom(+el.dataset.cnt); el.textContent = n === 0 ? 'Nenhum grupo ainda' : n === 1 ? '1 grupo já escolheu' : `${n} grupos já escolheram`; el.classList.toggle('tem', n > 0); });
+    const av = $('#avisoRep'); if (av) av.hidden = !(P.momento && contaMom(P.momento) > 0);
+    const temNome = P.nome.trim().length >= 2;
+    ok = temNome && !!P.momento;
+    msg = !temNome ? 'Escrevam o nome do grupo.' : !P.momento ? 'Escolham um momento.' : '';
+  } else if (P.step === 2){
+    const f = PERGUNTAS.filter(q => String(P.perguntas[q.k]||'').trim().length < 3).length;
+    ok = f === 0; msg = f ? (f === 1 ? 'Falta 1 resposta (mínimo de 3 letras).' : `Faltam ${f} respostas (mínimo de 3 letras).`) : '';
+  } else if (P.step === 3){
+    ok = !!cenaValida();
+  } else if (P.step === 4){
+    const f = P.checks.filter(x => !x).length;
+    ok = f === 0 && cenaValida() && !trav;
+    msg = f ? (f === 1 ? 'Falta marcar 1 item.' : `Faltam marcar ${f} itens.`) : '';
+  }
+  if (nb) nb.disabled = !ok;
+  if (falta) falta.textContent = msg;
+}
+
+function renderTodos(topo){
+  $('#app').innerHTML = `<div class="cel todos"><header class="cel-top"><div class="marca">Roteiro de todos</div><button type="button" class="btn" data-act="voltarCena">Voltar para a nossa cena</button></header><div id="todosBody"></div></div>`;
+  todosBody();
+  if (topo) scrollTo(0, 0);
+}
+function entradaCel(g, dest){
+  const nome = esc(nomeGrupo(g.nome)) + (g.id === P.id ? ' (vocês)' : '');
+  if (temCena(g)) return `<div class="ent ${dest?'dest':''}"><div class="ent-g">${nome}${g.status !== 'enviado' ? ' <span class="ed">reescrevendo...</span>' : ''}</div><div class="papel">${roteiroDe(g)}</div></div>`;
+  return `<div class="ent"><div class="ent-g">${nome}</div><div class="st-linha">${STATUS_TXT[g.status] || 'entrando'}...${g.status !== 'enviado' ? dots : ''}</div></div>`;
+}
+function todosBody(){
+  const el = $('#todosBody'); if (!el) return;
+  const gs = gruposArr().sort(porCriacao);
+  const dest = DB.config.destaque, gd = dest && DB.grupos[dest] ? { id: dest, ...DB.grupos[dest] } : null;
+  let h = '';
+  if (DB.config.travado) h += `<div class="trava"><b>Envios encerrados. Hora da leitura!</b></div>`;
+  if (gd && temCena(gd)) h += `<div class="dest-top"><div class="lbl-dest">Em destaque</div>${entradaCel(gd, true)}</div>`;
+  const chegando = gs.filter(g => !g.momento);
+  if (chegando.length) h += `<div class="chegando-cel">Chegando: ${chegando.map(g => esc(nomeGrupo(g.nome))).join(', ')}${dots}</div>`;
+  for (const m of MOMENTOS){
+    const list = gs.filter(g => g.momento === m.n);
+    h += `<section class="tm"><h2>${m.n}. ${esc(m.titulo)}</h2>${list.length ? list.map(g => entradaCel(g, g.id === dest)).join('') : '<p class="vazio">Nenhum grupo neste momento ainda.</p>'}</section>`;
+  }
+  const n = cenasOrdenadas().length;
+  h += `<p class="contagem">${n} de ${gs.length} cenas enviadas</p>`;
+  el.innerHTML = h;
+}
+
+function phoneData(){
+  // Grupo apagado pelo painel (ou "Limpar tudo"): recomeça.
+  if (loaded && online && P.registrado && !DB.grupos[P.id]){
+    clearTimeout(pushT);
+    P = novoP(); saveP();
+    renderPhone(true);
+    toast('O apresentador começou uma nova sessão. Vocês podem entrar de novo.');
+  }
+  // Leitura sincronizada: sobrepõe a tela sem mexer no que está embaixo.
+  const lo = $('#leitura');
+  if (DB.config.modoLeitura){
+    if (lo.hidden){ if (document.activeElement) document.activeElement.blur(); }
+    lo.hidden = false; lo.innerHTML = leituraHTML();
+    document.documentElement.classList.add('lendo');
+  } else if (!lo.hidden){
+    lo.hidden = true; lo.innerHTML = '';
+    document.documentElement.classList.remove('lendo');
+  }
+  if (P.view === 'todos') todosBody(); else phoneDyn();
+}
+
+const phoneActs = {
+  momento(b){ P.momento = +b.dataset.m; saveP(); $$('.mom').forEach(x => { const on = +x.dataset.m === P.momento; x.classList.toggle('sel', on); x.setAttribute('aria-pressed', on); }); phoneDyn(); push(); },
+  ir(b){
+    const s = +b.dataset.s;
+    if (s > P.step){
+      if (P.step === 1 && !(P.nome.trim().length >= 2 && P.momento)) return;
+      if (P.step === 2 && !perguntasOk()) return;
+      if (P.step === 3 && !cenaValida()) return;
+    }
+    P.step = s; saveP(); push(true); renderPhone(true);
+  },
+  cab(b){ P.cena.cabecalho[b.dataset.k] = b.dataset.v; saveP(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); atualizaCena(); },
+  add(b){
+    const t = b.dataset.t, c = cenaContagem();
+    if ((t === 'acao' && c.acoes >= MAX_ACOES) || (t === 'fala' && c.falas >= MAX_FALAS)) return;
+    P.cena.blocos.push(t === 'acao' ? { tipo:'acao', texto:'' } : { tipo:'fala', personagem:'', rubrica:'', texto:'' });
+    saveP(); renderBlocos();
+    const bls = $$('#blocos .bl'); const ult = bls.at(-1); if (ult) ult.scrollIntoView({ behavior:'smooth', block:'center' });
+  },
+  mover(b){ const i = +b.dataset.i, j = i + +b.dataset.d, bs = P.cena.blocos; if (j < 0 || j >= bs.length) return; [bs[i], bs[j]] = [bs[j], bs[i]]; saveP(); renderBlocos(); },
+  async del(b){
+    const i = +b.dataset.i, bl = P.cena.blocos[i];
+    if (bl.texto.trim() && !(await confirmar('Remover este bloco? O texto dele será apagado.', 'Remover', true))) return;
+    P.cena.blocos.splice(i, 1); saveP(); renderBlocos();
+  },
+  pista(b){ const bl = P.cena.blocos[+b.dataset.i], t = MOMENTOS[P.momento-1].pistas[+b.dataset.j]; bl.texto = ((bl.texto.trim() ? bl.texto.trim() + ' ' : '') + t).slice(0, 400); saveP(); renderBlocos(); },
+  pers(b){ const bl = P.cena.blocos[+b.dataset.i]; if (b.dataset.v){ bl.personagem = b.dataset.v; bl.outro = false; } else { bl.outro = true; if (MOMENTOS[P.momento-1].personagens.includes(bl.personagem)) bl.personagem = ''; } saveP(); renderBlocos(); },
+  rub(b){ const bl = P.cena.blocos[+b.dataset.i]; bl.rubrica = String(bl.rubrica||'').toUpperCase() === b.dataset.v ? '' : b.dataset.v; saveP(); renderBlocos(); },
+  enviar(){
+    if (DB.config.travado || !cenaValida() || P.checks.some(x => !x)) return;
+    const now = Date.now();
+    P.step = 5; saveP(); clearTimeout(pushT);
+    doPush({ status:'enviado', cena: limparCena(), enviadoEm: now });
+    renderPhone(true);
+  },
+  todos(){ P.view = 'todos'; saveP(); renderPhone(true); },
+  voltarCena(){ P.view = 'etapas'; saveP(); renderPhone(true); },
+  editar(){ if (DB.config.travado) return; P.step = 3; saveP(); push(true); renderPhone(true); },
+};
+
+function phoneInput(t){
+  if (t.dataset.f === 'nome'){ P.nome = t.value; saveP(); push(); phoneDyn(); }
+  else if (t.dataset.q){ P.perguntas[t.dataset.q] = t.value; saveP(); push(); phoneDyn(); }
+  else if (t.dataset.cab){ P.cena.cabecalho.local = t.value; saveP(); atualizaCena(); }
+  else if (t.dataset.b != null && t.dataset.k){
+    const bl = P.cena.blocos[+t.dataset.b]; if (!bl) return;
+    let v = t.value;
+    if (t.dataset.k === 'rubrica'){ const nv = v.replace(/[()]/g, ''); if (nv !== v){ t.value = nv; v = nv; } }
+    bl[t.dataset.k] = v; saveP();
+    const cc = $(`[data-cc="${t.dataset.b}"]`); if (cc && t.dataset.k === 'texto') cc.textContent = `${v.length}/${bl.tipo === 'acao' ? 400 : 200}`;
+    atualizaCena();
+  }
+}
+
+/* =====================================================================
+   TELA GRANDE (#/telao)
+   ===================================================================== */
+let telaoSig = '';
+const vistos = new Set();
+function renderTelao(forca){
+  document.body.className = 'r-telao';
+  if (!loaded){ $('#app').innerHTML = '<div class="carregando">Conectando...</div>'; return; }
+  const c = DB.config, gs = gruposArr().sort(porCriacao);
+  const espera = c.mostrarQR === true || (gs.length === 0 && c.mostrarQR !== false);
+  const sig = JSON.stringify([c.modoLeitura ? leituraAtual().g : null, !!c.modoLeitura, c.indiceLeitura, espera, c.destaque, gs.map(g => [g.id, g.nome, g.momento, g.status, g.cena]), innerWidth, innerHeight]);
+  if (!forca && sig === telaoSig) return;
+  telaoSig = sig;
+  const app = $('#app');
+
+  if (c.modoLeitura){
+    app.innerHTML = `<div class="tel-lei">${leituraHTML()}<div class="dica-teclas">Setas do teclado: anterior e próxima</div></div>`;
+    const p = $('.tel-lei .lei-papel');
+    if (p) ajustaFonte(p, p, Math.round(Math.min(innerWidth / 30, innerHeight / 17)), 14);
+    return;
+  }
+  if (espera){
+    app.innerHTML = `<div class="espera"><div><div class="esp-k">Workshop de roteiro · 1 Samuel 17</div><h1>Davi e Golias: roteiro ao vivo</h1>
+      <p>Um celular por grupo. Apontem a câmera para o QR code e entrem com o nome do grupo.</p>
+      <div class="esp-link">${SITE_URL}</div>${gs.length ? `<p style="margin-top:1em">${gs.length === 1 ? '1 grupo já entrou' : gs.length + ' grupos já entraram'}</p>` : ''}</div>
+      <div class="esp-qr" id="qrBig"></div></div>`;
+    qr($('#qrBig'));
+    return;
+  }
+  const cols = MOMENTOS.map(m => ({ m, list: gs.filter(g => g.momento === m.n) }));
+  const enviados = gs.filter(temCena).length;
+  const chegando = gs.filter(g => !g.momento);
+  const ent = g => {
+    const key = g.id + ':' + JSON.stringify(g.cena || null);
+    const novo = temCena(g) && !vistos.has(key);
+    if (temCena(g)) vistos.add(key);
+    return `<div class="tent ${g.id === c.destaque ? 'dest' : ''}"><div class="tent-g">${esc(nomeGrupo(g.nome))}${temCena(g) && g.status !== 'enviado' ? ' · reescrevendo' : ''}</div>${temCena(g)
+      ? `<div class="papel ${novo ? 'chega' : ''}">${roteiroDe(g)}</div>`
+      : `<div class="tst"><span>${STATUS_TXT[g.status] || 'entrando'}...${dots}</span></div>`}</div>`;
+  };
+  app.innerHTML = `<div class="tel">
+    <div class="tel-top"><h1>Davi e Golias: <span>roteiro ao vivo</span></h1><div class="lk">${SITE_URL.replace('https://','')}</div></div>
+    <div class="grade" style="grid-template-columns:${cols.map(x => Math.max(1, x.list.length) + 'fr').join(' ')}">
+      ${cols.map(({ m, list }) => `<section class="tcol"><header><span class="tn">${m.n}</span><span class="tt">${esc(m.titulo)}</span></header>
+        <div class="tcol-body">${list.length ? list.map(ent).join('') : '<div class="aguarda">Aguardando um grupo</div>'}</div></section>`).join('')}
+    </div>
+    <footer class="tfoot"><div class="cont"><b>${enviados}</b> de ${gs.length} ${gs.length === 1 ? 'cena enviada' : 'cenas enviadas'}</div>
+      <div class="chegando">${chegando.length ? 'Chegando: ' + chegando.map(g => esc(nomeGrupo(g.nome))).join(', ') + dots : ''}</div>
+      <div class="tqr"><span>Entrou atrasado?<br>Use o QR code</span><div id="qrMini"></div></div></footer></div>`;
+  qr($('#qrMini'));
+  const gd = c.destaque && DB.grupos[c.destaque] ? { id: c.destaque, ...DB.grupos[c.destaque] } : null;
+  if (gd && temCena(gd)){
+    const m = MOMENTOS[gd.momento - 1];
+    app.insertAdjacentHTML('beforeend', `<div class="spot"><div class="spot-card"><div class="spot-h">Em destaque · Momento ${gd.momento}: ${esc(m ? m.titulo : '')} · ${esc(nomeGrupo(gd.nome))}</div><div class="papel chega">${roteiroDe(gd)}</div></div></div>`);
+    const p = $('.spot .papel');
+    ajustaFonte(p, p, Math.round(Math.min(innerWidth / 34, innerHeight / 19)), 13);
+  }
+}
+addEventListener('keydown', e => {
+  if (R !== 'telao' || !DB.config.modoLeitura || !store) return;
+  const L = cenasOrdenadas(); if (!L.length) return;
+  const i = leituraAtual().i;
+  let n = i;
+  if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) n = Math.min(L.length - 1, i + 1);
+  else if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) n = Math.max(0, i - 1);
+  else return;
+  e.preventDefault();
+  if (n !== i) store.update('config', { indiceLeitura: n });
+});
+let rzT; addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { if (R === 'telao') renderTelao(true); }, 200); });
+
+/* =====================================================================
+   PAINEL DO APRESENTADOR (#/painel)
+   ===================================================================== */
+const abertos = new Set();
+const pinOK = () => SS.get('rav.pin') === PIN;
+function renderPin(){
+  document.body.className = 'r-painel';
+  $('#app').innerHTML = `<div class="pin"><h1>Painel</h1><p class="dica-min">Digite o PIN do apresentador.</p>
+    <label class="campo"><span class="sr" hidden>PIN</span><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN"></label>
+    <p class="erro" id="pinErro"></p><button class="btn pri full" data-act="entrar">Entrar</button></div>`;
+  const i = $('#pin'); i.focus();
+  i.addEventListener('keydown', e => { if (e.key === 'Enter') painelActs.entrar(); });
+}
+function renderPainel(){
+  document.body.className = 'r-painel';
+  if (!pinOK()) return renderPin();
+  if (!loaded){ $('#app').innerHTML = '<div class="carregando">Conectando...</div>'; return; }
+  const c = DB.config, gs = gruposArr().sort(porHistoria);
+  const { L, i, g } = leituraAtual();
+  const qrVisivel = c.mostrarQR === true || (gs.length === 0 && c.mostrarQR !== false);
+  const temDemo = gs.some(x => x.demo);
+  const badge = store.mode === 'local' ? '<span class="badge">Modo local (sem Firebase)</span>' : online ? '<span class="badge on">Conectado</span>' : '<span class="badge off">Sem conexão</span>';
+  const escrevendo = gs.filter(x => x.status !== 'enviado').length;
+  const y = scrollY;
+  $('#app').innerHTML = `<div class="pn">
+    <header class="pn-top"><h1>Painel</h1>${badge}</header>
+    <div class="pn-res"><div><b>${gs.length}</b>grupos</div><div><b>${L.length}</b>cenas enviadas</div><div><b>${escrevendo}</b>trabalhando</div></div>
+
+    <section class="pcard"><h2>Sala</h2>
+      <div class="row"><div><b>Envios ${c.travado ? 'travados' : 'abertos'}</b><small>${c.travado ? 'Os grupos não conseguem editar nem enviar.' : 'Os grupos podem enviar e reenviar.'}</small></div>
+        <button class="btn ${c.travado ? '' : 'pri'}" data-act="travar">${c.travado ? 'Destravar envios' : 'Travar envios'}</button></div>
+      <div class="row"><div><b>Tela de espera com QR</b><small>${qrVisivel ? 'Aparecendo na tela grande.' : 'Escondida na tela grande.'}</small></div>
+        <button class="btn" data-act="qr">${qrVisivel ? 'Esconder' : 'Mostrar'}</button></div>
+    </section>
+
+    <section class="pcard"><h2>Modo Leitura</h2>
+      <div class="row"><div><b>${c.modoLeitura ? 'Ligado' : 'Desligado'}</b><small>Tela grande e celulares mostram a mesma cena.</small></div>
+        <button class="btn ${c.modoLeitura ? '' : 'pri'}" data-act="leitura">${c.modoLeitura ? 'Desligar' : 'Ligar'}</button></div>
+      <div class="lnav"><button class="btn" data-act="nav" data-d="-1" ${i <= 0 ? 'disabled' : ''}>← Anterior</button><span>${g ? `Cena ${i+1} de ${L.length}` : 'Sem cenas'}</span><button class="btn" data-act="nav" data-d="1" ${i < 0 || i >= L.length - 1 ? 'disabled' : ''}>Próxima →</button></div>
+      ${g ? `<div class="lei-info">Momento ${g.momento} de 5 · ${esc(nomeGrupo(g.nome))}</div><div class="papel mini">${roteiroDe(g)}</div>` : '<p class="vazio">As cenas aparecem aqui quando os grupos enviarem.</p>'}
+    </section>
+
+    <section class="pcard"><h2>Grupos</h2>
+      ${gs.length ? gs.map(grupoPainel).join('') : '<p class="vazio">Nenhum grupo entrou ainda.</p>'}
+    </section>
+
+    <section class="pcard"><h2>QR code do site</h2><div class="pn-qr" id="qrPainel"></div><p class="link">${SITE_URL}</p></section>
+
+    <section class="pcard pn-ferr"><h2>Ferramentas</h2>
+      <button class="btn full" data-act="pdf">Gerar PDF</button>
+      <div class="row2"><button class="btn" data-act="demo">Modo demonstração</button><button class="btn" data-act="demoOff" ${temDemo ? '' : 'disabled'}>Remover demonstração</button></div>
+      <button class="btn full danger" data-act="limpar">Limpar tudo</button>
+      <button class="btn full ghost" data-act="sair">Sair do painel</button>
+    </section></div>`;
+  qr($('#qrPainel'));
+  scrollTo(0, y);
+}
+function grupoPainel(g){
+  const aberto = abertos.has(g.id), dest = DB.config.destaque === g.id, m = MOMENTOS[g.momento - 1];
+  return `<div class="pg ${dest ? 'dest' : ''}">
+    <div class="pg-h"><div><b>${esc(nomeGrupo(g.nome))}</b>${g.demo ? ' <small style="display:inline">(demonstração)</small>' : ''}<small>${m ? `Momento ${m.n}: ${esc(m.titulo)}` : 'Ainda escolhendo o momento'}</small></div><span class="pill s-${esc(g.status)}">${STATUS_LBL[g.status] || '?'}</span></div>
+    <div class="pg-acts">
+      <button class="btn" data-act="abrir" data-id="${esc(g.id)}" aria-expanded="${aberto}">${aberto ? 'Fechar' : 'Ver respostas e cena'}</button>
+      ${temCena(g) ? `<button class="btn ${dest ? 'pri' : ''}" data-act="destacar" data-id="${esc(g.id)}">${dest ? 'Tirar destaque' : 'Destacar'}</button><button class="btn" data-act="lerEsta" data-id="${esc(g.id)}">Ler esta</button>` : ''}
+      <button class="btn danger" data-act="apagar" data-id="${esc(g.id)}">Apagar</button>
+    </div>
+    ${aberto ? `<div class="pg-det"><dl>${PERGUNTAS.map(q => `<dt>${q.l}</dt><dd>${esc((g.perguntas || {})[q.k]) || '<i class="vazio">sem resposta</i>'}</dd>`).join('')}</dl>
+      ${temCena(g) ? `<div class="papel mini">${roteiroDe(g)}</div>` : '<p class="vazio">Cena ainda não enviada.</p>'}</div>` : ''}
+  </div>`;
+}
+const painelActs = {
+  entrar(){
+    const v = ($('#pin') || {}).value || '';
+    if (v === PIN){ SS.set('rav.pin', PIN); renderPainel(); }
+    else { $('#pinErro').textContent = 'PIN incorreto.'; $('#pin').value = ''; $('#pin').focus(); }
+  },
+  sair(){ SS.set('rav.pin', null); renderPin(); },
+  travar(){ store.update('config', { travado: !DB.config.travado }); },
+  qr(){ const gs = gruposArr(); const vis = DB.config.mostrarQR === true || (gs.length === 0 && DB.config.mostrarQR !== false); store.update('config', { mostrarQR: !vis }); },
+  leitura(){ store.update('config', { modoLeitura: !DB.config.modoLeitura, indiceLeitura: Math.max(0, leituraAtual().i) }); },
+  nav(b){ const { L, i } = leituraAtual(); if (!L.length) return; const n = Math.min(L.length - 1, Math.max(0, i + +b.dataset.d)); store.update('config', { indiceLeitura: n }); },
+  abrir(b){ const id = b.dataset.id; abertos.has(id) ? abertos.delete(id) : abertos.add(id); renderPainel(); },
+  destacar(b){ const id = b.dataset.id; store.update('config', { destaque: DB.config.destaque === id ? null : id }); },
+  lerEsta(b){ const L = cenasOrdenadas(); const n = L.findIndex(x => x.id === b.dataset.id); if (n >= 0) store.update('config', { indiceLeitura: n, modoLeitura: true }); },
+  async apagar(b){
+    const id = b.dataset.id, g = DB.grupos[id]; if (!g) return;
+    if (!(await confirmar(`Apagar o ${nomeGrupo(g.nome)} e a cena dele? Não dá para desfazer.`, 'Apagar', true))) return;
+    const up = { ['grupos/' + id]: null }; if (DB.config.destaque === id) up['config/destaque'] = null;
+    store.update('', up); abertos.delete(id); toast('Grupo apagado.');
+  },
+  async limpar(){
+    if (!(await confirmar('Limpar tudo e começar uma nova sessão? Todos os grupos e cenas serão apagados. Não dá para desfazer.', 'Limpar tudo', true))) return;
+    store.set('', { config: { travado:false, modoLeitura:false, indiceLeitura:0 } }); abertos.clear(); toast('Sessão limpa. Pronto para começar.');
+  },
+  pdf(){ const w = window.open(location.pathname + '#/imprimir', '_blank'); if (!w) location.hash = '#/imprimir'; },
+  demo(){ store.update('grupos', demoGrupos()); toast('Demonstração criada: 5 grupos de exemplo.'); },
+  demoOff(){
+    const up = {}; gruposArr().filter(g => g.demo).forEach(g => { up['grupos/' + g.id] = null; });
+    if (DB.config.destaque && up['grupos/' + DB.config.destaque] !== undefined) up['config/destaque'] = null;
+    store.update('', up); toast('Demonstração removida.');
+  },
+};
+
+function demoGrupos(){
+  const A = t => ({ tipo:'acao', texto:t }), F = (p, t, r) => Object.assign({ tipo:'fala', personagem:p, texto:t }, r ? { rubrica:r } : {});
+  const base = Date.now() - 60000;
+  const dados = [
+    ['Leão', 1, ['Davi', 'Davi ouve Golias desafiar Israel', 'no acampamento', 'de manhã, no 40º dia', 'ninguém tem coragem', 'Davi pergunta e Eliabe se irrita'],
+      ['EXT','ACAMPAMENTO ISRAELITA','DIA'], [A('Davi atravessa o acampamento com um saco de pães nas costas. Soldados afiam espadas sem olhar para o vale.'), F('ELIABE','O que você está fazendo aqui? Volta para as ovelhas.','BRAVO'), A('A voz de Golias ecoa pelo vale. Os soldados recuam com medo.'), F('DAVI','Ninguém vai responder a ele?','BAIXINHO'), F('SOLDADO','Quem vencer esse gigante fica rico. Mas ninguém quer morrer.')]],
+    ['Águia', 2, ['Davi, Saul e Abner', 'Davi pede para lutar', 'na tenda do rei', 'logo depois de chegar', 'ele confia em Deus', 'contando do leão e do urso'],
+      ['INT','TENDA DE SAUL','DIA'], [A('Saul mede Davi de cima a baixo. Abner cruza os braços.'), F('SAUL','Você é só um rapaz.'), F('DAVI','Eu cuidava das ovelhas do meu pai. Quando veio um leão, eu fui atrás dele.','FIRME'), A('Davi mostra as cicatrizes nas mãos. A armadura de Saul fica grande demais em Davi.'), F('ABNER','Majestade, ele está falando sério.','BAIXINHO')]],
+    ['Funda', 3, ['Davi, Golias e o escudeiro', 'Golias zomba de Davi', 'no Vale de Elá', 'antes da luta', 'Golias se acha invencível', 'Davi responde com calma'],
+      ['EXT','VALE DE ELÁ','DIA'], [A('Golias ri e aponta para o cajado. O escudeiro ri junto.'), F('GOLIAS','Sou algum cachorro, para você vir com um pedaço de pau?','RINDO'), A('Davi escolhe cinco pedras no riacho, uma por uma. Não desvia o olhar.'), F('DAVI','Você vem com espada. Eu venho em nome do Senhor.','CALMO')]],
+    ['Pedra', 4, ['Davi e Golias', 'o arremesso', 'no meio do vale', 'um segundo antes', 'para salvar Israel', 'com uma funda'],
+      ['EXT','VALE DE ELÁ','DIA'], [A('A funda começa a girar. Silêncio. Só o vento.'), F('GOLIAS','Venha, garoto!','GRITANDO'), A('Golias baixa o escudo. CLOSE na pedra.'), F('DAVI','Agora.','BAIXINHO')]],
+    ['Harpa', 5, ['Saul, Davi, Eliabe e Abner', 'a reação à vitória', 'no vale', 'logo depois da queda', 'Deus deu a vitória', 'cada um reage diferente'],
+      ['EXT','VALE DE ELÁ','DIA'], [A('Os filisteus fogem. Poeira por todo lado.'), F('SAUL','Abner, de quem é aquele rapaz?'), F('ABNER','Não sei, majestade.'), A('Eliabe não consegue olhar para o irmão. Davi se ajoelha e agradece.'), F('DAVI','Foi o Senhor.','EMOCIONADO')]],
+  ];
+  const out = {};
+  dados.forEach(([nome, m, r, cab, blocos], k) => {
+    out['demo' + (k + 1)] = { nome, momento:m, status:'enviado', demo:true,
+      perguntas:{ quem:r[0], oque:r[1], onde:r[2], quando:r[3], porque:r[4], como:r[5] },
+      cena:{ cabecalho:{ tipo:cab[0], local:cab[1], periodo:cab[2] }, blocos },
+      criadoEm: base + k * 1000, atualizadoEm: base + k * 1000, enviadoEm: base + k * 1000 };
+  });
+  return out;
+}
+
+/* =====================================================================
+   IMPRESSÃO / PDF (#/imprimir)
+   ===================================================================== */
+function renderImprimir(){
+  document.body.className = 'r-imprimir';
+  if (!loaded){ $('#app').innerHTML = '<div class="carregando">Conectando...</div>'; return; }
+  const L = cenasOrdenadas();
+  const gs = gruposArr().filter(g => g.momento).sort(porHistoria);
+  const data = new Date().toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+  const tit = g => (MOMENTOS[g.momento - 1] || {}).titulo || '';
+  $('#app').innerHTML = `<div class="pr-bar no-print"><button class="btn pri" data-act="print">Salvar como PDF</button><span>Na janela de impressão, escolha 'Salvar como PDF'</span><a class="btn ghost" href="#/painel">Voltar ao painel</a></div>
+  <div class="folhas">
+    <section class="folha capa"><div><div class="capa-k">1 Samuel 17</div><h1>Davi e Golias</h1><h2>Roteiro coletivo</h2><p class="capa-d">${esc(data)}</p>
+      ${gs.length ? `<table><thead><tr><th>Grupo</th><th>Momento</th></tr></thead><tbody>${gs.map(g => `<tr><td>${esc(nomeGrupo(g.nome))}</td><td>${g.momento}. ${esc(tit(g))}</td></tr>`).join('')}</tbody></table>` : ''}</div></section>
+    ${L.length ? L.map(g => `<section class="folha"><div class="pr-g">${esc(nomeGrupo(g.nome))} · Momento ${g.momento}: ${esc(tit(g))}</div>${roteiroDe(g)}</section>`).join('')
+      : '<section class="folha"><p class="rot">Nenhuma cena enviada ainda.</p></section>'}
+    ${gs.length ? `<section class="folha anexo"><h2>Anexo: as 6 perguntas de cada grupo</h2>${gs.map(g => `<div class="anx"><h3>${esc(nomeGrupo(g.nome))} · Momento ${g.momento}</h3><dl>${PERGUNTAS.map(q => `<dt>${q.l}</dt><dd>${esc((g.perguntas || {})[q.k]) || '-'}</dd>`).join('')}</dl></div>`).join('')}</section>` : ''}
+  </div>`;
+}
+
+/* =====================================================================
+   ROTEADOR E EVENTOS
+   ===================================================================== */
+let R = null;
+function rota(){ const h = (location.hash || '').replace(/^#\/?/, '').split(/[?/]/)[0]; return ['telao','painel','imprimir'].includes(h) ? h : 'celular'; }
+function mount(){
+  R = rota(); telaoSig = '';
+  const lo = $('#leitura'); lo.hidden = true; lo.innerHTML = ''; document.documentElement.classList.remove('lendo');
+  document.title = { celular:'Roteiro ao Vivo', telao:'Tela grande · Roteiro ao Vivo', painel:'Painel · Roteiro ao Vivo', imprimir:'Davi e Golias · Roteiro coletivo' }[R];
+  if (R === 'celular') renderPhone(true);
+  else if (R === 'telao') renderTelao(true);
+  else if (R === 'painel') renderPainel();
+  else renderImprimir();
+  if (loaded) onData();
+}
+function onData(){
+  if (!store) return;
+  if (R === 'celular') phoneData();
+  else if (R === 'telao') renderTelao();
+  else if (R === 'painel'){ if (pinOK()) renderPainel(); }
+  else if (R === 'imprimir') renderImprimir();
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('#modal')) return;
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const a = b.dataset.act;
+  if (R === 'celular' && phoneActs[a]) phoneActs[a](b);
+  else if (R === 'painel' && painelActs[a]){ if (store || a === 'entrar' || a === 'sair') painelActs[a](b); }
+  else if (a === 'print') window.print();
+});
+document.addEventListener('input', e => { if (R === 'celular') phoneInput(e.target); });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (R === 'celular' && t.dataset.chk != null){ P.checks[+t.dataset.chk] = t.checked; saveP(); phoneDyn(); }
+});
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden){ const c = $('#modal [data-m="0"]'); if (c) c.click(); } });
+addEventListener('hashchange', mount);
+
+loadP();
+mount();
+initStore().then(() => { if (R === 'celular' && P.registrado === false && P.nome.trim().length >= 2) push(); onData(); });
+</script>
+</body>
+</html>

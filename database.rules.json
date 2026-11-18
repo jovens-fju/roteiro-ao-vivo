@@ -1,0 +1,62 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "sessao": {
+      ".read": true,
+      ".write": true,
+      "config": {
+        "travado": { ".validate": "newData.isBoolean()" },
+        "modoLeitura": { ".validate": "newData.isBoolean()" },
+        "indiceLeitura": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 100" },
+        "destaque": { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "mostrarQR": { ".validate": "newData.isBoolean()" },
+        "$outro": { ".validate": false }
+      },
+      "grupos": {
+        ".validate": "newData.numChildren() <= 40",
+        "$id": {
+          ".validate": "$id.length <= 40 && newData.hasChildren(['nome', 'momento', 'status'])",
+          "nome": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 30" },
+          "momento": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5" },
+          "status": { ".validate": "newData.isString() && newData.val().matches(/^(escolhendo|respondendo|escrevendo|enviado)$/)" },
+          "demo": { ".validate": "newData.isBoolean()" },
+          "perguntas": {
+            "quem": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "oque": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "onde": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "quando": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "porque": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "como": { ".validate": "newData.isString() && newData.val().length <= 150" },
+            "$outro": { ".validate": false }
+          },
+          "cena": {
+            "cabecalho": {
+              "tipo": { ".validate": "newData.isString() && newData.val().matches(/^(EXT|INT)$/)" },
+              "local": { ".validate": "newData.isString() && newData.val().length <= 50" },
+              "periodo": { ".validate": "newData.isString() && newData.val().matches(/^(DIA|NOITE)$/)" },
+              "$outro": { ".validate": false }
+            },
+            "blocos": {
+              ".validate": "newData.numChildren() <= 8",
+              "$i": {
+                ".validate": "newData.hasChildren(['tipo', 'texto'])",
+                "tipo": { ".validate": "newData.isString() && newData.val().matches(/^(acao|fala)$/)" },
+                "texto": { ".validate": "newData.isString() && newData.val().length <= 400" },
+                "personagem": { ".validate": "newData.isString() && newData.val().length <= 30" },
+                "rubrica": { ".validate": "newData.isString() && newData.val().length <= 30" },
+                "$outro": { ".validate": false }
+              }
+            },
+            "$outro": { ".validate": false }
+          },
+          "criadoEm": { ".validate": "newData.isNumber()" },
+          "atualizadoEm": { ".validate": "newData.isNumber()" },
+          "enviadoEm": { ".validate": "newData.isNumber()" },
+          "$outro": { ".validate": false }
+        }
+      },
+      "$outro": { ".validate": false }
+    }
+  }
+}
