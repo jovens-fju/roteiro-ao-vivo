@@ -215,9 +215,13 @@ body.r-telao{overflow:hidden}
 .zoom-tel.inline{position:static}
 .zoom-tel button{min-width:44px;min-height:40px;border-radius:9px;border:1px solid var(--line);background:var(--card);font-weight:700;cursor:pointer}
 .zoom-tel span{min-width:52px;text-align:center;font-size:14px;color:var(--txt2)}
-.zoom-pn{display:flex;align-items:center;gap:8px}
-.zoom-pn .btn{min-width:52px;padding:8px 10px}
-.zoom-pn span{min-width:52px;text-align:center;font-weight:700;color:var(--gold)}
+.zoom-pn{display:flex;align-items:center;gap:6px;flex:none}
+.row .zoom-pn .btn{min-width:48px;min-height:44px;padding:6px 10px}
+.row.zrow{flex-wrap:wrap}
+.row.zrow>div:first-child{flex:1 1 150px}
+#prevLei{max-height:55vh;overscroll-behavior:contain}
+.dica-rol{color:var(--txt2);font-size:14px;text-align:center;margin:6px 0 0}
+.zoom-pn span{min-width:46px;text-align:center;font-weight:700;color:var(--gold)}
 .tel-lei{height:100vh;height:100dvh;padding:3vh 5vw;display:flex;flex-direction:column;gap:1.5vh}
 .tel-lei .lei{max-width:none;width:100%;height:100%;min-height:0}
 .tel-lei .lei-top{font-size:clamp(18px,2vw,42px)}
@@ -913,12 +917,16 @@ function renderTelao(forca){
     p.style.overflow = 'auto';
   }
 }
-// Rolagem da cena no Modo Leitura do telão, comandada pelo painel (config.rolagem = passos de meia tela).
+// Rolagem da cena no Modo Leitura do telão, comandada pelo painel.
+// config.rolagem = quanto da cena já desceu, de 0 (topo) a 99 (fim). Assim telão e celular ficam na mesma proporção.
+const ROL_MAX = 99;
+const fracRolagem = () => Math.min(1, Math.max(0, (+DB.config.rolagem || 0) / ROL_MAX));
 function aplicaRolagem(suave){
   const p = $('.tel-lei .lei-papel'); if (!p) return;
   const max = p.scrollHeight - p.clientHeight;
-  const alvo = Math.min(max, Math.max(0, (DB.config.rolagem | 0) * p.clientHeight * 0.5));
-  p.scrollTo({ top: alvo, behavior: suave ? 'smooth' : 'auto' });
+  const alvo = Math.round(max * fracRolagem());
+  // Rolagem pelo dedo chega em passos pequenos: vai direto. Passos grandes (setas) vão suaves.
+  p.scrollTo({ top: alvo, behavior: suave && Math.abs(alvo - p.scrollTop) > p.clientHeight * 0.3 ? 'smooth' : 'auto' });
   const ct = $('#continua'); if (ct) ct.hidden = alvo >= max - 2;
 }
 // Na visão dos 5 momentos, cenas longas descem sozinhas devagar e depois voltam ao topo.
@@ -951,9 +959,14 @@ addEventListener('keydown', e => {
   }
   if (R !== 'telao' || !DB.config.modoLeitura || !store) return;
   const L = cenasOrdenadas(); if (!L.length) return;
-  const i = leituraAtual().i, r = DB.config.rolagem | 0;
-  if (['ArrowDown','PageDown'].includes(e.key)){ e.preventDefault(); return store.update('config', { rolagem: Math.min(99, r + 1) }); }
-  if (['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); return store.update('config', { rolagem: Math.max(0, r - 1) }); }
+  const i = leituraAtual().i;
+  const dir = ['ArrowDown','PageDown'].includes(e.key) ? 1 : ['ArrowUp','PageUp'].includes(e.key) ? -1 : 0;
+  if (dir){
+    e.preventDefault();
+    const p = $('.tel-lei .lei-papel'), max = p ? p.scrollHeight - p.clientHeight : 0;
+    const passo = max > 2 ? p.clientHeight * 0.5 / max * ROL_MAX : 25;
+    return store.update('config', { rolagem: Math.round(Math.min(ROL_MAX, Math.max(0, (+DB.config.rolagem || 0) + dir * passo)) * 10) / 10 });
+  }
   let n = i;
   if (['ArrowRight',' '].includes(e.key)) n = Math.min(L.length - 1, i + 1);
   else if (e.key === 'ArrowLeft') n = Math.max(0, i - 1);
@@ -976,12 +989,17 @@ function renderPin(){
   const i = $('#pin'); i.focus();
   i.addEventListener('keydown', e => { if (e.key === 'Enter') painelActs.entrar(); });
 }
-function renderPainel(){
+let painelSig = '', prevMexidoEm = 0, prevAplicando = false, prevT = 0;
+function renderPainel(forca = true){
   document.body.className = 'r-painel';
   if (!pinOK()) return renderPin();
   if (!loaded){ $('#app').innerHTML = '<div class="carregando">Conectando...</div>'; return; }
   const c = DB.config, gs = gruposArr().sort(porHistoria);
   const { L, i, g } = leituraAtual();
+  // Mudou só a rolagem? Não redesenha o painel (para não travar o dedo no meio da rolagem): só acompanha.
+  const sig = JSON.stringify([online, store.mode, { ...c, rolagem: 0 }, DB.grupos]);
+  if (!forca && sig === painelSig && $('.pn')){ sincronizaPrevia(); return; }
+  painelSig = sig;
   const qrVisivel = c.mostrarQR === true || (gs.length === 0 && c.mostrarQR !== false);
   const temDemo = gs.some(x => x.demo);
   const badge = store.mode === 'local' ? '<span class="badge">Modo local (sem Firebase)</span>' : online ? '<span class="badge on">Conectado</span>' : '<span class="badge off">Sem conexão</span>';
@@ -994,7 +1012,7 @@ function renderPainel(){
     <section class="pcard"><h2>Sala</h2>
       <div class="row"><div><b>Envios ${c.travado ? 'travados' : 'abertos'}</b><small>${c.travado ? 'Os grupos não conseguem editar nem enviar.' : 'Os grupos podem enviar e reenviar.'}</small></div>
         <button class="btn ${c.travado ? '' : 'pri'}" data-act="travar">${c.travado ? 'Destravar envios' : 'Travar envios'}</button></div>
-      <div class="row"><div><b>Tamanho do texto no telão</b><small>Zoom das cenas na tela grande.</small></div>
+      <div class="row zrow"><div><b>Tamanho do texto no telão</b><small>Zoom das cenas na tela grande.</small></div>
         <div class="zoom-pn"><button class="btn" data-act="zoom" data-d="-0.1" aria-label="Diminuir">A−</button><span>${Math.round(zoomAtual() * 100)}%</span><button class="btn" data-act="zoom" data-d="0.1" aria-label="Aumentar">A+</button></div></div>
       <div class="row"><div><b>Tela de espera com QR</b><small>${qrVisivel ? 'Aparecendo na tela grande.' : 'Escondida na tela grande.'}</small></div>
         <button class="btn" data-act="qr">${qrVisivel ? 'Esconder' : 'Mostrar'}</button></div>
@@ -1004,8 +1022,8 @@ function renderPainel(){
       <div class="row"><div><b>${c.modoLeitura ? 'Ligado' : 'Desligado'}</b><small>Tela grande e celulares mostram a mesma cena.</small></div>
         <button class="btn ${c.modoLeitura ? '' : 'pri'}" data-act="leitura">${c.modoLeitura ? 'Desligar' : 'Ligar'}</button></div>
       <div class="lnav"><button class="btn" data-act="nav" data-d="-1" ${i <= 0 ? 'disabled' : ''}>← Anterior</button><span>${g ? `Cena ${i+1} de ${L.length}` : 'Sem cenas'}</span><button class="btn" data-act="nav" data-d="1" ${i < 0 || i >= L.length - 1 ? 'disabled' : ''}>Próxima →</button></div>
-      ${g ? `<div class="lnav"><button class="btn" data-act="rolar" data-d="-1" ${(c.rolagem|0) <= 0 ? 'disabled' : ''}>▲ Subir</button><span>Rolar a cena<br>no telão</span><button class="btn" data-act="rolar" data-d="1">▼ Descer</button></div>` : ''}
-      ${g ? `<div class="lei-info">Momento ${g.momento} de 5 · ${esc(nomeGrupo(g.nome))}</div><div class="papel mini">${roteiroDe(g)}</div>` : '<p class="vazio">As cenas aparecem aqui quando os grupos enviarem.</p>'}
+      ${g ? `<div class="lnav"><button class="btn" data-act="rolar" data-d="-1" id="rolSobe">▲ Subir</button><span>Rolar a cena<br>no telão</span><button class="btn" data-act="rolar" data-d="1" id="rolDesce">▼ Descer</button></div>` : ''}
+      ${g ? `<div class="lei-info">Momento ${g.momento} de 5 · ${esc(nomeGrupo(g.nome))}</div><div class="papel mini" id="prevLei">${roteiroDe(g)}</div><p class="dica-rol">Role a cena aqui com o dedo: o telão acompanha.</p>` : '<p class="vazio">As cenas aparecem aqui quando os grupos enviarem.</p>'}
     </section>
 
     <section class="pcard"><h2>Grupos</h2>
@@ -1022,6 +1040,39 @@ function renderPainel(){
     </section></div>`;
   qr($('#qrPainel'));
   scrollTo(0, y);
+  const pv = $('#prevLei');
+  if (pv){
+    sincronizaPrevia(true);
+    pv.addEventListener('scroll', () => {
+      if (prevAplicando) return;
+      prevMexidoEm = Date.now();
+      atualizaSetas();
+      if (!prevT) prevT = setTimeout(enviaRolagemPrevia, 150);
+    }, { passive: true });
+  }
+}
+// A prévia do painel e o telão rolam juntos, na mesma proporção da cena.
+function enviaRolagemPrevia(){
+  prevT = 0;
+  const pv = $('#prevLei'); if (!pv) return;
+  const max = pv.scrollHeight - pv.clientHeight; if (max <= 2) return;
+  const r = Math.round(Math.min(1, pv.scrollTop / max) * ROL_MAX * 10) / 10;
+  if (r !== +DB.config.rolagem) store.update('config', { rolagem: r });
+}
+function sincronizaPrevia(forca){
+  const pv = $('#prevLei'); if (!pv) return;
+  // Enquanto o dedo está rolando, a prévia manda; não puxa de volta.
+  if (forca || Date.now() - prevMexidoEm > 1000){
+    const max = pv.scrollHeight - pv.clientHeight;
+    const alvo = Math.round(max * fracRolagem());
+    if (Math.abs(alvo - pv.scrollTop) > 2){ prevAplicando = true; pv.scrollTop = alvo; requestAnimationFrame(() => { prevAplicando = false; }); }
+  }
+  atualizaSetas();
+}
+function atualizaSetas(){
+  const pv = $('#prevLei'), up = $('#rolSobe'), dn = $('#rolDesce'); if (!pv || !up || !dn) return;
+  const max = pv.scrollHeight - pv.clientHeight, f = max > 2 ? pv.scrollTop / max : fracRolagem();
+  up.disabled = f <= 0.005; dn.disabled = max > 2 ? f >= 0.995 : fracRolagem() >= 1;
 }
 function grupoPainel(g){
   const aberto = abertos.has(g.id), dest = DB.config.destaque === g.id, m = MOMENTOS[g.momento - 1];
@@ -1048,7 +1099,12 @@ const painelActs = {
   leitura(){ store.update('config', { modoLeitura: !DB.config.modoLeitura, indiceLeitura: Math.max(0, leituraAtual().i), rolagem: 0 }); },
   nav(b){ const { L, i } = leituraAtual(); if (!L.length) return; const n = Math.min(L.length - 1, Math.max(0, i + +b.dataset.d)); store.update('config', { indiceLeitura: n, rolagem: 0 }); },
   zoom(b){ mudaZoom(+b.dataset.d); },
-  rolar(b){ store.update('config', { rolagem: Math.min(99, Math.max(0, (DB.config.rolagem | 0) + +b.dataset.d)) }); },
+  rolar(b){
+    const d = +b.dataset.d, pv = $('#prevLei');
+    // A seta rola a prévia (e a prévia leva o telão junto). Se a prévia couber inteira, anda 25% da cena.
+    if (pv && pv.scrollHeight - pv.clientHeight > 2){ prevMexidoEm = Date.now(); pv.scrollBy({ top: d * pv.clientHeight * 0.6, behavior: 'smooth' }); }
+    else store.update('config', { rolagem: Math.min(ROL_MAX, Math.max(0, (+DB.config.rolagem || 0) + d * 25)) });
+  },
   abrir(b){ const id = b.dataset.id; abertos.has(id) ? abertos.delete(id) : abertos.add(id); renderPainel(); },
   destacar(b){ const id = b.dataset.id; store.update('config', { destaque: DB.config.destaque === id ? null : id }); },
   lerEsta(b){ const L = cenasOrdenadas(); const n = L.findIndex(x => x.id === b.dataset.id); if (n >= 0) store.update('config', { indiceLeitura: n, modoLeitura: true, rolagem: 0 }); },
@@ -1135,7 +1191,7 @@ function onData(){
   if (!store) return;
   if (R === 'celular') phoneData();
   else if (R === 'telao') renderTelao();
-  else if (R === 'painel'){ if (pinOK()) renderPainel(); }
+  else if (R === 'painel'){ if (pinOK()) renderPainel(false); }
   else if (R === 'imprimir') renderImprimir();
 }
 document.addEventListener('click', e => {

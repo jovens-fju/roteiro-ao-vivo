@@ -100,7 +100,7 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 4. Os grupos entram pelo QR code do slide ou da tela grande. Quando todos entrarem, toque em **Esconder** na tela de espera. A tela grande passa a mostrar os 5 momentos ao vivo.
 5. Quem chegar atrasado: mostre o QR code do seu painel.
 6. Quando acabar o tempo: **Travar envios**. Os celulares mostram "Envios encerrados. Hora da leitura!".
-7. Leitura: **Ligar** o Modo Leitura e usar Anterior e Próxima. Tela grande e celulares mudam juntos. Se a cena for longa, use **▲ Subir** e **▼ Descer** no painel para rolar o telão (o telão avisa "A cena continua abaixo"). Cada celular rola sozinho. No notebook, as setas ← → trocam a cena e ↑ ↓ rolam.
+7. Leitura: **Ligar** o Modo Leitura e usar Anterior e Próxima. Tela grande e celulares mudam juntos. Se a cena for longa, role a prévia da cena no painel com o dedo: o telão acompanha na mesma proporção. Os botões **▲ Subir** e **▼ Descer** fazem o mesmo (o telão avisa "A cena continua abaixo"). Cada celular rola sozinho. No notebook, as setas ← → trocam a cena e ↑ ↓ rolam.
    Na visão dos 5 momentos, cenas longas descem sozinhas devagar e voltam ao topo.
 8. Use **Destacar** para pôr uma cena na frente de todos.
 9. No fim: **Gerar PDF** e "Salvar como PDF". Depois, feche o banco (item b).
