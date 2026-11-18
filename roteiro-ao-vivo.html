@@ -314,7 +314,9 @@ const PIN = '1717';
 // Endereço público do site (usado nos QR codes).
 const SITE_URL = 'https://jovens-fju.github.io/roteiro-ao-vivo/';
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
-const MIN_ACOES = 4, MIN_FALAS = 4; // mínimo para enviar; não há máximo
+// Mínimo real para liberar o envio. O texto mostrado aos grupos pede 4 ações e 4 falas,
+// mas aceitamos 2 ações porque às vezes juntam várias ações num bloco só. Não há máximo.
+const MIN_ACOES = 2, MIN_FALAS = 4;
 
 const MOMENTOS = [
   { n:1, titulo:'Davi chega ao campo de batalha',
