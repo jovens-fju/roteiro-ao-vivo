@@ -24,6 +24,9 @@
         "rolagem": {
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 100"
         },
+        "zoom": {
+          ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 2.5"
+        },
         "$outro": {
           ".validate": false
         }

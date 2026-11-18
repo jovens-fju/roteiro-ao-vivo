@@ -114,9 +114,14 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 5. **Ligar** o Modo Leitura: todos os celulares abertos no app passam para a mesma cena, em letra grande. Anterior e Próxima mudam todos juntos. Ao desligar, cada celular volta para onde estava.
 6. No fim: **Gerar PDF** e feche o banco (item b).
 
+## Zoom do telão
+
+No telão, os botões **A−**, **A+** e **100%** (no alto da tela, ou embaixo no Modo Leitura) mudam o tamanho do texto das cenas. No notebook, as teclas + e - fazem o mesmo, e 0 volta ao normal. O mesmo controle está no painel, em Sala, para ajustar pelo celular.
+
 ## Formato automático
 
 - Quando o mesmo personagem fala de novo (seguido ou depois de uma ação), o app coloca **(CONT.)** ao lado do nome. A rubrica continua aparecendo embaixo, normalmente.
+- Um personagem digitado em "Outro" vira botão nas próximas falas do grupo.
 - A rubrica tem a sugestão **Fora de quadro**, para quando o personagem é ouvido mas não aparece na cena.
 
 ## Se der problema

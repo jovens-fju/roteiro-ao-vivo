@@ -187,10 +187,10 @@ body.r-telao{overflow:hidden}
 .tcol-body{flex:1;min-height:0;display:grid;gap:.7vw;padding:.7vw;grid-auto-columns:1fr;grid-auto-flow:column}
 .tent{display:flex;flex-direction:column;min-height:0;min-width:0}
 .tent-g{font-weight:700;color:var(--gold);font-size:clamp(13px,1vw,22px);margin-bottom:.6vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tent .papel{flex:1;min-height:0;overflow:auto;padding:1vw;font-size:clamp(11px,.62vw + 4px,22px);scrollbar-width:thin}
+.tent .papel{flex:1;min-height:0;overflow:auto;padding:1vw;font-size:calc(clamp(11px,.62vw + 4px,22px) * var(--tz,1));scrollbar-width:thin}
 .tent.dest .papel{outline:.35vw solid var(--gold)}
 .tent.dest{position:relative;z-index:2}
-.tst{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;border:2px dashed var(--line);border-radius:10px;color:var(--txt2);font-size:clamp(14px,1.1vw,24px);padding:1vw}
+.tst{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;border:2px dashed var(--line);border-radius:10px;color:var(--txt2);font-size:calc(clamp(14px,1.1vw,24px) * var(--tz,1));padding:1vw}
 .aguarda{flex:1;display:flex;align-items:center;justify-content:center;color:#7d7262;font-size:clamp(13px,1vw,22px);text-align:center}
 .tfoot{display:flex;align-items:center;justify-content:space-between;gap:2vw}
 .cont{font-family:'Oswald';font-size:clamp(18px,1.9vw,40px)}
@@ -210,6 +210,14 @@ body.r-telao{overflow:hidden}
 .spot-card{width:min(1100px,88vw);max-height:90vh;display:flex;flex-direction:column;gap:1.2vh}
 .spot-h{font-family:'Oswald';color:var(--gold);text-transform:uppercase;letter-spacing:.06em;font-size:clamp(16px,1.6vw,34px)}
 .spot .papel{outline:.4vw solid var(--gold);overflow:hidden;padding:2.4vw 3vw;min-height:0}
+.zoom-tel{position:fixed;left:12px;bottom:12px;z-index:30;display:flex;align-items:center;gap:4px;background:rgba(20,17,15,.75);border:1px solid var(--line);border-radius:12px;padding:4px;opacity:.35;transition:opacity .2s}
+.zoom-tel:hover,.zoom-tel:focus-within{opacity:1}
+.zoom-tel.inline{position:static}
+.zoom-tel button{min-width:44px;min-height:40px;border-radius:9px;border:1px solid var(--line);background:var(--card);font-weight:700;cursor:pointer}
+.zoom-tel span{min-width:52px;text-align:center;font-size:14px;color:var(--txt2)}
+.zoom-pn{display:flex;align-items:center;gap:8px}
+.zoom-pn .btn{min-width:52px;padding:8px 10px}
+.zoom-pn span{min-width:52px;text-align:center;font-weight:700;color:var(--gold)}
 .tel-lei{height:100vh;height:100dvh;padding:3vh 5vw;display:flex;flex-direction:column;gap:1.5vh}
 .tel-lei .lei{max-width:none;width:100%;height:100%;min-height:0}
 .tel-lei .lei-top{font-size:clamp(18px,2vw,42px)}
@@ -647,11 +655,17 @@ function blocoHTML(b, i, n){
       <div class="lbl">Pistas (toque para usar)</div>
       <div class="chips">${m.pistas.map((p, j) => `<button type="button" class="chip" data-act="pista" data-i="${i}" data-j="${j}">${esc(p)}</button>`).join('')}</div></div>`;
   }
-  const sug = m.personagens;
-  const outro = b.outro || (b.personagem && !sug.includes(b.personagem));
+  // Personagens sugeridos + os que o grupo já digitou em outras falas (viram botão).
+  const sug = [...m.personagens];
+  P.cena.blocos.forEach((o, j) => {
+    const n = String(o.personagem || '').trim().toUpperCase();
+    if (j !== i && o.tipo === 'fala' && n && !sug.includes(n)) sug.push(n);
+  });
+  const atual = String(b.personagem || '').trim().toUpperCase();
+  const outro = b.outro || (atual && !sug.includes(atual));
   return `<div class="bl bl-fala"><div class="bl-h"><b>Fala</b>${ctr}</div>
     <div class="lbl">Personagem</div>
-    <div class="chips">${sug.map(p => `<button type="button" class="chip ${!outro && b.personagem===p?'on':''}" data-act="pers" data-i="${i}" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip ${outro?'on':''}" data-act="pers" data-i="${i}" data-v="">Outro</button></div>
+    <div class="chips">${sug.map(p => `<button type="button" class="chip ${!outro && atual===p?'on':''}" data-act="pers" data-i="${i}" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip ${outro?'on':''}" data-act="pers" data-i="${i}" data-v="">Outro</button></div>
     ${outro ? `<label class="campo"><span>Nome do personagem</span><input data-b="${i}" data-k="personagem" maxlength="30" autocomplete="off" placeholder="Ex.: JESSÉ" value="${esc(b.personagem)}"></label>` : ''}
     <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, FORA DE QUADRO" value="${esc(b.rubrica||'')}"></label>
     <div class="chips mini">${RUBRICAS.map(r => `<button type="button" class="chip ${String(b.rubrica||'').toUpperCase()===r?'on':''}" data-act="rub" data-i="${i}" data-v="${r}">${r[0] + r.slice(1).toLowerCase()}</button>`).join('')}</div>
@@ -830,23 +844,33 @@ function phoneInput(t){
    TELA GRANDE (#/telao)
    ===================================================================== */
 let telaoSig = '';
+// Zoom do texto no telão (config.zoom, de 0.6 a 2). Ajustável no próprio telão, nas teclas + e - ou pelo painel.
+const ZOOM_MIN = 0.6, ZOOM_MAX = 2;
+const zoomAtual = () => { const z = +DB.config.zoom; return z >= ZOOM_MIN && z <= ZOOM_MAX ? z : 1; };
+function mudaZoom(d){
+  if (!store) return;
+  const z = d === 0 ? 1 : Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomAtual() + d)) * 10) / 10;
+  store.update('config', { zoom: z });
+}
+const zoomTelHTML = (cls = '') => `<div class="zoom-tel ${cls}" aria-label="Zoom do texto"><button type="button" data-act="zoom" data-d="-0.1" aria-label="Diminuir">A−</button><span>${Math.round(zoomAtual() * 100)}%</span><button type="button" data-act="zoom" data-d="0.1" aria-label="Aumentar">A+</button><button type="button" data-act="zoom" data-d="0" aria-label="Voltar ao normal">100%</button></div>`;
 const vistos = new Set();
 function renderTelao(forca){
   document.body.className = 'r-telao';
   if (!loaded){ $('#app').innerHTML = '<div class="carregando">Conectando...</div>'; return; }
   const c = DB.config, gs = gruposArr().sort(porCriacao);
   const espera = c.mostrarQR === true || (gs.length === 0 && c.mostrarQR !== false);
-  const sig = JSON.stringify([c.modoLeitura ? leituraAtual().g : null, !!c.modoLeitura, c.indiceLeitura, espera, c.destaque, gs.map(g => [g.id, g.nome, g.momento, g.status, g.cena]), innerWidth, innerHeight]);
+  const sig = JSON.stringify([zoomAtual(), c.modoLeitura ? leituraAtual().g : null, !!c.modoLeitura, c.indiceLeitura, espera, c.destaque, gs.map(g => [g.id, g.nome, g.momento, g.status, g.cena]), innerWidth, innerHeight]);
   if (!forca && sig === telaoSig){ if (c.modoLeitura) aplicaRolagem(true); return; }
   telaoSig = sig;
   pararAutoRolagem();
+  document.body.style.setProperty('--tz', zoomAtual());
   const app = $('#app');
 
   if (c.modoLeitura){
-    app.innerHTML = `<div class="tel-lei">${leituraHTML()}<div class="dica-teclas"><span id="continua" hidden>A cena continua abaixo ▼</span> Setas ← → trocam a cena. Setas ↑ ↓ rolam.</div></div>`;
+    app.innerHTML = `<div class="tel-lei">${leituraHTML()}<div class="dica-teclas"><span id="continua" hidden>A cena continua abaixo ▼</span> Setas ← → trocam a cena. Setas ↑ ↓ rolam.</div></div>${zoomTelHTML()}`;
     const p = $('.tel-lei .lei-papel');
     // A letra diminui só até um tamanho legível do fundo da sala; o resto o apresentador rola pelo painel.
-    if (p) ajustaFonte(p, p, Math.round(Math.min(innerWidth / 30, innerHeight / 17)), Math.max(18, Math.round(innerHeight / 30)));
+    if (p) ajustaFonte(p, p, Math.round(Math.min(innerWidth / 30, innerHeight / 17) * zoomAtual()), Math.round(Math.max(18, innerHeight / 30) * zoomAtual()));
     aplicaRolagem(false);
     return;
   }
@@ -870,7 +894,7 @@ function renderTelao(forca){
       : `<div class="tst"><span>${STATUS_TXT[g.status] || 'entrando'}...${dots}</span></div>`}</div>`;
   };
   app.innerHTML = `<div class="tel">
-    <div class="tel-top"><h1>Davi e Golias: <span>roteiro ao vivo</span></h1><div class="lk">${SITE_URL.replace('https://','')}</div></div>
+    <div class="tel-top"><h1>Davi e Golias: <span>roteiro ao vivo</span></h1><div style="display:flex;align-items:center;gap:1.2vw">${zoomTelHTML('inline')}<div class="lk">${SITE_URL.replace('https://','')}</div></div></div>
     <div class="grade" style="grid-template-columns:${cols.map(x => Math.max(1, x.list.length) + 'fr').join(' ')}">
       ${cols.map(({ m, list }) => `<section class="tcol"><header><span class="tn">${m.n}</span><span class="tt">${esc(m.titulo)}</span></header>
         <div class="tcol-body">${list.length ? list.map(ent).join('') : '<div class="aguarda">Aguardando um grupo</div>'}</div></section>`).join('')}
@@ -885,7 +909,8 @@ function renderTelao(forca){
     const m = MOMENTOS[gd.momento - 1];
     app.insertAdjacentHTML('beforeend', `<div class="spot"><div class="spot-card"><div class="spot-h">Em destaque · Momento ${gd.momento}: ${esc(m ? m.titulo : '')} · ${esc(nomeGrupo(gd.nome))}</div><div class="papel chega">${roteiroDe(gd)}</div></div></div>`);
     const p = $('.spot .papel');
-    ajustaFonte(p, p, Math.round(Math.min(innerWidth / 34, innerHeight / 19)), 13);
+    ajustaFonte(p, p, Math.round(Math.min(innerWidth / 34, innerHeight / 19) * zoomAtual()), Math.round(13 * zoomAtual()));
+    p.style.overflow = 'auto';
   }
 }
 // Rolagem da cena no Modo Leitura do telão, comandada pelo painel (config.rolagem = passos de meia tela).
@@ -919,6 +944,11 @@ function iniciarAutoRolagem(){
   autoRaf = requestAnimationFrame(passo);
 }
 addEventListener('keydown', e => {
+  if (R === 'telao' && store && !e.ctrlKey && !e.metaKey){
+    if (e.key === '+' || e.key === '='){ e.preventDefault(); return mudaZoom(0.1); }
+    if (e.key === '-' || e.key === '_'){ e.preventDefault(); return mudaZoom(-0.1); }
+    if (e.key === '0'){ e.preventDefault(); return mudaZoom(0); }
+  }
   if (R !== 'telao' || !DB.config.modoLeitura || !store) return;
   const L = cenasOrdenadas(); if (!L.length) return;
   const i = leituraAtual().i, r = DB.config.rolagem | 0;
@@ -964,6 +994,8 @@ function renderPainel(){
     <section class="pcard"><h2>Sala</h2>
       <div class="row"><div><b>Envios ${c.travado ? 'travados' : 'abertos'}</b><small>${c.travado ? 'Os grupos não conseguem editar nem enviar.' : 'Os grupos podem enviar e reenviar.'}</small></div>
         <button class="btn ${c.travado ? '' : 'pri'}" data-act="travar">${c.travado ? 'Destravar envios' : 'Travar envios'}</button></div>
+      <div class="row"><div><b>Tamanho do texto no telão</b><small>Zoom das cenas na tela grande.</small></div>
+        <div class="zoom-pn"><button class="btn" data-act="zoom" data-d="-0.1" aria-label="Diminuir">A−</button><span>${Math.round(zoomAtual() * 100)}%</span><button class="btn" data-act="zoom" data-d="0.1" aria-label="Aumentar">A+</button></div></div>
       <div class="row"><div><b>Tela de espera com QR</b><small>${qrVisivel ? 'Aparecendo na tela grande.' : 'Escondida na tela grande.'}</small></div>
         <button class="btn" data-act="qr">${qrVisivel ? 'Esconder' : 'Mostrar'}</button></div>
     </section>
@@ -1015,6 +1047,7 @@ const painelActs = {
   qr(){ const gs = gruposArr(); const vis = DB.config.mostrarQR === true || (gs.length === 0 && DB.config.mostrarQR !== false); store.update('config', { mostrarQR: !vis }); },
   leitura(){ store.update('config', { modoLeitura: !DB.config.modoLeitura, indiceLeitura: Math.max(0, leituraAtual().i), rolagem: 0 }); },
   nav(b){ const { L, i } = leituraAtual(); if (!L.length) return; const n = Math.min(L.length - 1, Math.max(0, i + +b.dataset.d)); store.update('config', { indiceLeitura: n, rolagem: 0 }); },
+  zoom(b){ mudaZoom(+b.dataset.d); },
   rolar(b){ store.update('config', { rolagem: Math.min(99, Math.max(0, (DB.config.rolagem | 0) + +b.dataset.d)) }); },
   abrir(b){ const id = b.dataset.id; abertos.has(id) ? abertos.delete(id) : abertos.add(id); renderPainel(); },
   destacar(b){ const id = b.dataset.id; store.update('config', { destaque: DB.config.destaque === id ? null : id }); },
@@ -1111,6 +1144,7 @@ document.addEventListener('click', e => {
   const a = b.dataset.act;
   if (R === 'celular' && phoneActs[a]) phoneActs[a](b);
   else if (R === 'painel' && painelActs[a]){ if (store || a === 'entrar' || a === 'sair') painelActs[a](b); }
+  else if (R === 'telao' && a === 'zoom') mudaZoom(+b.dataset.d);
   else if (a === 'print') window.print();
 });
 document.addEventListener('input', e => { if (R === 'celular') phoneInput(e.target); });
