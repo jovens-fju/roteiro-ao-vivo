@@ -310,7 +310,7 @@ body.r-imprimir{background:#5b534a}
    ===================================================================== */
 
 // PIN do painel do apresentador. Troque aqui se quiser.
-const PIN = '1717';
+const PIN = '2308';
 // Endereço público do site (usado nos QR codes).
 const SITE_URL = 'https://jovens-fju.github.io/roteiro-ao-vivo/';
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
@@ -323,27 +323,27 @@ const MOMENTOS = [
     pergunta:'O que Davi vê e ouve que mais ninguém parece notar?',
     tipo:'EXT', local:'ACAMPAMENTO ISRAELITA', periodo:'DIA',
     personagens:['DAVI','ELIABE','SOLDADO'],
-    pistas:['Davi chega com pães e queijos para os irmãos.','A voz de Golias ecoa pelo vale.','Os soldados recuam com medo.','Eliabe puxa Davi pelo braço.'] },
+    pistas:['Davi chega com pães e queijos para os irmãos.','A voz de Golias ecoa pelo vale.'] },
   { n:2, titulo:'Davi convence o rei Saul',
     pergunta:'Como um garoto convence um rei? O que ele conta do leão e do urso?',
     tipo:'INT', local:'TENDA DE SAUL', periodo:'DIA',
     personagens:['DAVI','SAUL','ABNER'],
-    pistas:['Saul mede Davi de cima a baixo.','Davi mostra as cicatrizes nas mãos.','A armadura de Saul fica grande demais em Davi.','Davi tira o capacete e devolve.'] },
+    pistas:['Saul mede Davi de cima a baixo.','Davi mostra as cicatrizes nas mãos.'] },
   { n:3, titulo:'Davi e Golias frente a frente',
     pergunta:'Como Golias humilha? Como Davi responde sem gritar?',
     tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
     personagens:['GOLIAS','DAVI','ESCUDEIRO'],
-    pistas:['Golias ri e aponta para o cajado.','Davi escolhe cinco pedras no riacho.','O escudeiro de Golias recua um passo.','Davi não desvia o olhar.'] },
+    pistas:['Golias ri e aponta para o cajado.','Davi escolhe cinco pedras no riacho.'] },
   { n:4, titulo:'A pedra',
     pergunta:'O que a câmera mostra no segundo antes do arremesso?',
     tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
     personagens:['DAVI','GOLIAS','SAUL'],
-    pistas:['A funda começa a girar.','Silêncio. Só o vento.','Golias baixa o escudo.','CLOSE na pedra.'] },
+    pistas:['A funda começa a girar.','Silêncio. Só o vento.'] },
   { n:5, titulo:'Depois da vitória',
     pergunta:'Como reagem Saul, os irmãos de Davi e o povo?',
     tipo:'EXT', local:'VALE DE ELÁ', periodo:'DIA',
     personagens:['SAUL','DAVI','ELIABE','ABNER'],
-    pistas:['Os filisteus fogem.','Eliabe não consegue olhar para o irmão.','Saul pergunta a Abner de quem é aquele rapaz.','Davi se ajoelha e agradece.'] },
+    pistas:['Os filisteus fogem.','Eliabe não consegue olhar para o irmão.'] },
 ];
 const PERGUNTAS = [
   { k:'quem',   l:'Quem?',     ph:'Ex.: Davi, Golias e o exército de Saul' },
@@ -629,7 +629,6 @@ function blocoHTML(b, i, n){
     <div class="chips">${sug.map(p => `<button type="button" class="chip ${!outro && b.personagem===p?'on':''}" data-act="pers" data-i="${i}" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip ${outro?'on':''}" data-act="pers" data-i="${i}" data-v="">Outro</button></div>
     ${outro ? `<label class="campo"><span>Nome do personagem</span><input data-b="${i}" data-k="personagem" maxlength="30" autocomplete="off" placeholder="Ex.: JESSÉ" value="${esc(b.personagem)}"></label>` : ''}
     <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, RINDO" value="${esc(b.rubrica||'')}"></label>
-    <div class="chips mini">${RUBRICAS.map(r => `<button type="button" class="chip ${String(b.rubrica||'').toUpperCase()===r?'on':''}" data-act="rub" data-i="${i}" data-v="${r}">${r}</button>`).join('')}</div>
     <label class="campo" style="margin-bottom:0"><span>Fala</span><textarea data-b="${i}" data-k="texto" maxlength="400" rows="3" placeholder="O que o personagem diz">${esc(b.texto)}</textarea></label>
     <div class="bl-info"><span>Do jeito que o personagem fala.</span><span class="cc" data-cc="${i}">${b.texto.length}/400</span></div></div>`;
 }
@@ -980,15 +979,15 @@ function demoGrupos(){
   const base = Date.now() - 60000;
   const dados = [
     ['Leão', 1, ['Davi', 'Davi ouve Golias desafiar Israel', 'no acampamento', 'de manhã, no 40º dia', 'ninguém tem coragem', 'Davi pergunta e Eliabe se irrita'],
-      ['EXT','ACAMPAMENTO ISRAELITA','DIA'], [A('Davi atravessa o acampamento com um saco de pães nas costas. Soldados afiam espadas sem olhar para o vale.'), F('ELIABE','O que você está fazendo aqui? Volta para as ovelhas.','BRAVO'), A('A voz de Golias ecoa pelo vale. Os soldados recuam com medo.'), F('DAVI','Ninguém vai responder a ele?','BAIXINHO'), F('SOLDADO','Quem vencer esse gigante fica rico. Mas ninguém quer morrer.')]],
+      ['EXT','ACAMPAMENTO ISRAELITA','DIA'], [A('Davi atravessa o acampamento com um saco de pães nas costas. Soldados afiam espadas sem olhar para o vale.'), F('ELIABE','O que você está fazendo aqui? Volta para as ovelhas.','BRAVO'), A('A voz de Golias ecoa pelo vale. Os soldados recuam com medo.'), F('DAVI','Ninguém vai responder a ele?','BAIXINHO'), A('Um soldado deixa a lança cair e não volta para pegar.'), F('SOLDADO','Quem vencer esse gigante fica rico. Mas ninguém quer morrer.'), A('Davi olha para o vale. Depois para os irmãos.'), F('DAVI','Quem é esse filisteu para desafiar o exército do Deus vivo?','FIRME')]],
     ['Águia', 2, ['Davi, Saul e Abner', 'Davi pede para lutar', 'na tenda do rei', 'logo depois de chegar', 'ele confia em Deus', 'contando do leão e do urso'],
-      ['INT','TENDA DE SAUL','DIA'], [A('Saul mede Davi de cima a baixo. Abner cruza os braços.'), F('SAUL','Você é só um rapaz.'), F('DAVI','Eu cuidava das ovelhas do meu pai. Quando veio um leão, eu fui atrás dele.','FIRME'), A('Davi mostra as cicatrizes nas mãos. A armadura de Saul fica grande demais em Davi.'), F('ABNER','Majestade, ele está falando sério.','BAIXINHO')]],
+      ['INT','TENDA DE SAUL','DIA'], [A('Saul mede Davi de cima a baixo. Abner cruza os braços.'), F('SAUL','Você é só um rapaz.'), A('Davi mostra as cicatrizes nas mãos.'), F('DAVI','Eu cuidava das ovelhas do meu pai. Quando veio um leão, eu fui atrás dele.','FIRME'), F('ABNER','Majestade, ele está falando sério.','BAIXINHO'), A('Um servo veste Davi com a armadura de Saul. O capacete cobre os olhos dele.'), F('DAVI','Não consigo andar com isso. Não estou acostumado.'), A('Davi tira o capacete e devolve. Saul quase sorri.')]],
     ['Funda', 3, ['Davi, Golias e o escudeiro', 'Golias zomba de Davi', 'no Vale de Elá', 'antes da luta', 'Golias se acha invencível', 'Davi responde com calma'],
-      ['EXT','VALE DE ELÁ','DIA'], [A('Golias ri e aponta para o cajado. O escudeiro ri junto.'), F('GOLIAS','Sou algum cachorro, para você vir com um pedaço de pau?','RINDO'), A('Davi escolhe cinco pedras no riacho, uma por uma. Não desvia o olhar.'), F('DAVI','Você vem com espada. Eu venho em nome do Senhor.','CALMO')]],
+      ['EXT','VALE DE ELÁ','DIA'], [A('Golias ri e aponta para o cajado. O escudeiro ri junto.'), F('GOLIAS','Sou algum cachorro, para você vir com um pedaço de pau?','RINDO'), A('Davi se abaixa no riacho e escolhe cinco pedras, uma por uma.'), F('ESCUDEIRO','Ele nem tem escudo.','BAIXINHO'), A('Davi guarda as pedras na bolsa de pastor. Não desvia o olhar.'), F('DAVI','Você vem com espada. Eu venho em nome do Senhor.','CALMO'), A('O sorriso de Golias some.'), F('GOLIAS','Venha, que eu dou sua carne às aves.','GRITANDO')]],
     ['Pedra', 4, ['Davi e Golias', 'o arremesso', 'no meio do vale', 'um segundo antes', 'para salvar Israel', 'com uma funda'],
-      ['EXT','VALE DE ELÁ','DIA'], [A('A funda começa a girar. Silêncio. Só o vento.'), F('GOLIAS','Venha, garoto!','GRITANDO'), A('Golias baixa o escudo. CLOSE na pedra.'), F('DAVI','Agora.','BAIXINHO')]],
+      ['EXT','VALE DE ELÁ','DIA'], [A('A funda começa a girar. Silêncio. Só o vento.'), F('GOLIAS','Venha, garoto!','GRITANDO'), A('Golias baixa o escudo e dá um passo à frente.'), F('SAUL','O que ele está fazendo?','BAIXINHO'), A('CLOSE na pedra, presa no couro da funda.'), F('DAVI','Senhor, é contigo.','SUSSURRANDO'), A('Davi solta a funda. O som corta o vale.'), F('ABNER','Ele acertou!')]],
     ['Harpa', 5, ['Saul, Davi, Eliabe e Abner', 'a reação à vitória', 'no vale', 'logo depois da queda', 'Deus deu a vitória', 'cada um reage diferente'],
-      ['EXT','VALE DE ELÁ','DIA'], [A('Os filisteus fogem. Poeira por todo lado.'), F('SAUL','Abner, de quem é aquele rapaz?'), F('ABNER','Não sei, majestade.'), A('Eliabe não consegue olhar para o irmão. Davi se ajoelha e agradece.'), F('DAVI','Foi o Senhor.','EMOCIONADO')]],
+      ['EXT','VALE DE ELÁ','DIA'], [A('Os filisteus fogem. Poeira por todo lado.'), F('SAUL','Abner, de quem é aquele rapaz?'), F('ABNER','Não sei, majestade.'), A('Eliabe não consegue olhar para o irmão.'), F('ELIABE','Eu achei que ele só queria ver a batalha.','ENVERGONHADO'), A('O povo grita e corre para o vale.'), A('Davi se ajoelha e agradece.'), F('DAVI','Foi o Senhor.','EMOCIONADO')]],
   ];
   const out = {};
   dados.forEach(([nome, m, r, cab, blocos], k) => {

@@ -8,7 +8,7 @@ Endereço: **https://jovens-fju.github.io/roteiro-ao-vivo/**
 |---|---|
 | `#/` | Celular dos grupos |
 | `#/telao` | Tela grande (projetor, TV ou notebook) |
-| `#/painel` | Painel do apresentador (PIN **1717**) |
+| `#/painel` | Painel do apresentador (PIN **2308**) |
 | `#/imprimir` | Versão para impressão e PDF |
 
 O PIN fica na constante `PIN`, no topo do script em `roteiro-ao-vivo.html`.
@@ -81,7 +81,7 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 2. Abra `https://jovens-fju.github.io/roteiro-ao-vivo/` no celular (ou numa janela estreita).
 3. No celular, digite um nome de grupo, escolha um momento, responda as 6 perguntas, escreva pelo menos 4 ações e 4 falas, marque o checklist e envie.
 4. A tela grande mostra o status ("respondendo as perguntas...", "escrevendo...") e depois a cena chegando.
-5. Abra `#/painel` (PIN 1717) e apague o grupo de teste.
+5. Abra `#/painel` (PIN 2308) e apague o grupo de teste.
 
 **Com o Modo demonstração (sozinho em casa):**
 
@@ -96,7 +96,7 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 
 1. Antes: no painel, **Limpar tudo**. Confira que os envios estão destravados.
 2. No projetor, TV ou notebook, abra `https://jovens-fju.github.io/roteiro-ao-vivo/#/telao` em tela cheia (F11). Aparece a tela de espera com o QR code.
-3. No seu celular, abra `#/painel` (PIN 1717).
+3. No seu celular, abra `#/painel` (PIN 2308).
 4. Os grupos entram pelo QR code do slide ou da tela grande. Quando todos entrarem, toque em **Esconder** na tela de espera. A tela grande passa a mostrar os 5 momentos ao vivo.
 5. Quem chegar atrasado: mostre o QR code do seu painel.
 6. Quando acabar o tempo: **Travar envios**. Os celulares mostram "Envios encerrados. Hora da leitura!".
@@ -106,7 +106,7 @@ Sem computador: dá para editar `roteiro-ao-vivo.html` pelo site do GitHub, mas 
 
 **Cenário 2: só com os celulares**
 
-1. No seu celular, abra `#/painel` (PIN 1717) e faça **Limpar tudo**.
+1. No seu celular, abra `#/painel` (PIN 2308) e faça **Limpar tudo**.
 2. Os grupos entram pelo QR code que aparece no seu painel (ou no slide).
 3. Depois de enviar, cada grupo toca em **Ver o roteiro de todos** e acompanha as cenas chegando ao vivo.
 4. **Travar envios** quando acabar o tempo.
