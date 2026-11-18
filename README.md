@@ -46,7 +46,7 @@ Estrutura no banco:
 As regras estão em `database.rules.json`. Resumo:
 
 - Leitura e escrita abertas **só dentro de `/sessao`**. Tudo fora disso fica bloqueado.
-- Cada campo tem tipo e tamanho máximo (nome até 30 letras, ação até 400, fala até 200, até 60 blocos por cena, só para evitar abuso). Campos desconhecidos são recusados.
+- Cada campo tem tipo e tamanho máximo (nome até 30 letras, ação e fala até 400 letras cada, até 60 blocos por cena, só para evitar abuso). Campos desconhecidos são recusados.
 
 Para publicar as regras: Console do Firebase > Realtime Database > aba **Regras** > colar o conteúdo de `database.rules.json` > **Publicar**.
 

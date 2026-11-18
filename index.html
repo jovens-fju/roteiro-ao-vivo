@@ -375,7 +375,7 @@ const CHECKS = [
   'Cabeçalho completo (EXT/INT, lugar, DIA/NOITE)',
   'Na ação, só o que se vê',
   'Tem um gesto que mostra o sentimento',
-  'Pelo menos 2 falas curtas',
+  'Pelo menos 2 falas',
 ];
 const RUBRICAS = ['FIRME','BAIXINHO','RINDO'];
 const STATUS_TXT = { escolhendo:'escolhendo o momento', respondendo:'respondendo as perguntas', escrevendo:'escrevendo', enviado:'cena enviada' };
@@ -573,7 +573,7 @@ function limparCena(){
     cabecalho:{ tipo: c.tipo === 'INT' ? 'INT' : 'EXT', local: (c.local||'').trim().toUpperCase().slice(0, 50) || 'LOCAL', periodo: c.periodo === 'NOITE' ? 'NOITE' : 'DIA' },
     blocos: blocosDe(P.cena).filter(b => b.texto.trim()).map(b => b.tipo === 'acao'
       ? { tipo:'acao', texto: b.texto.trim().slice(0, 400) }
-      : Object.assign({ tipo:'fala', personagem: String(b.personagem||'').trim().toUpperCase().slice(0, 30) || 'PERSONAGEM', texto: b.texto.trim().slice(0, 200) },
+      : Object.assign({ tipo:'fala', personagem: String(b.personagem||'').trim().toUpperCase().slice(0, 30) || 'PERSONAGEM', texto: b.texto.trim().slice(0, 400) },
           rubLimpa(b.rubrica) ? { rubrica: String(b.rubrica).replace(/[()]/g,'').trim().slice(0, 30) } : {})),
   };
 }
@@ -648,8 +648,8 @@ function blocoHTML(b, i, n){
     ${outro ? `<label class="campo"><span>Nome do personagem</span><input data-b="${i}" data-k="personagem" maxlength="30" autocomplete="off" placeholder="Ex.: JESSÉ" value="${esc(b.personagem)}"></label>` : ''}
     <label class="campo"><span>Rubrica (opcional, o jeito de falar)</span><input data-b="${i}" data-k="rubrica" maxlength="30" autocomplete="off" placeholder="Ex.: FIRME, BAIXINHO, RINDO" value="${esc(b.rubrica||'')}"></label>
     <div class="chips mini">${RUBRICAS.map(r => `<button type="button" class="chip ${String(b.rubrica||'').toUpperCase()===r?'on':''}" data-act="rub" data-i="${i}" data-v="${r}">${r}</button>`).join('')}</div>
-    <label class="campo" style="margin-bottom:0"><span>Fala</span><textarea data-b="${i}" data-k="texto" maxlength="200" rows="2" placeholder="O que o personagem diz">${esc(b.texto)}</textarea></label>
-    <div class="bl-info"><span>Curta, para falar em voz alta.</span><span class="cc" data-cc="${i}">${b.texto.length}/200</span></div></div>`;
+    <label class="campo" style="margin-bottom:0"><span>Fala</span><textarea data-b="${i}" data-k="texto" maxlength="400" rows="3" placeholder="O que o personagem diz">${esc(b.texto)}</textarea></label>
+    <div class="bl-info"><span>Do jeito que o personagem fala.</span><span class="cc" data-cc="${i}">${b.texto.length}/400</span></div></div>`;
 }
 function renderBlocos(){
   const el = $('#blocos'); if (!el) return;
@@ -814,7 +814,7 @@ function phoneInput(t){
     let v = t.value;
     if (t.dataset.k === 'rubrica'){ const nv = v.replace(/[()]/g, ''); if (nv !== v){ t.value = nv; v = nv; } }
     bl[t.dataset.k] = v; saveP();
-    const cc = $(`[data-cc="${t.dataset.b}"]`); if (cc && t.dataset.k === 'texto') cc.textContent = `${v.length}/${bl.tipo === 'acao' ? 400 : 200}`;
+    const cc = $(`[data-cc="${t.dataset.b}"]`); if (cc && t.dataset.k === 'texto') cc.textContent = `${v.length}/${400}`;
     atualizaCena();
   }
 }
